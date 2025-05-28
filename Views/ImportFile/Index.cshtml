@@ -1,0 +1,52 @@
+@model IEnumerable<OnlineCompiler.Models.ImportFile>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Imported Files</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                File Name
+            </th>
+            <th>
+                Author
+            </th>
+            <th>
+                Import Date
+            </th>
+            <th>
+                Imported By
+            </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ImportedFile.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OriginalPublicFile.Author)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ImportDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ImportedBy)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
+                    <a asp-action="ManageProjects" asp-route-fileId="@item.Id" class="btn btn-primary">Use</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

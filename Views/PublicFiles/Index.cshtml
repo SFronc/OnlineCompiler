@@ -1,0 +1,56 @@
+@model IEnumerable<OnlineCompiler.Models.PublicFiles>
+@using Microsoft.AspNetCore.Http
+
+
+@{
+    ViewData["Title"] = "Publicly Shared Files";
+    var currentUsername = Context.Session.GetString("Username");
+    var currentUserId = Context.Session.GetInt32("UserId");
+    var ImportedFileIds = ViewBag.ImportedFileIds as List<int> ?? new List<int>();
+}
+
+<h1>Publicly Shared Files</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>File Name</th>
+            <th>Author</th>
+            <th>Last Updated</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var isImported = ImportedFileIds.Contains(item.Id);
+            <tr>
+                <td>@item.PublicFile.Name</td>
+                <td>
+                    @if(Context.Session.GetString("Username") == item.Author){
+                        <p>You</p>
+                    }
+                    else{
+                        @item.Author
+                    }
+                </td>
+                <td>@item.UpdateDate.ToString("g")</td>
+                @if(Context.Session.GetString("Username") != item.Author){
+                <td>
+                    @if(isImported){
+                        <span class="text-success">
+                                <i class="fas fa-check-circle"></i> Imported
+                        </span>
+                    }
+                    else{
+                    <form asp-controller="ImportFile" asp-action="Import" method="post">
+                <input type="hidden" name="fileId" value="@item.PublicFileId" />
+                <button type="submit" class="btn btn-primary">Import</button>
+                </form>
+                    }
+                </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>

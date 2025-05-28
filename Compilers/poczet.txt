@@ -1,0 +1,2 @@
+nadaj_dz 3 1 2
+wypisz_prs 1

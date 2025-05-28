@@ -1,0 +1,27 @@
+x = 5;
+y = 7;
+reszta = "jeszcze mnie nie ustawili";
+$wypisz_prs reszta
+jesli(12 == x + y || x >= y)
+{
+    x += 1;
+    y -= 1;
+}
+
+$ustaw_reszte_dom "warunkowa = tak;
+$wypisz_prs warunkowa"
+$pozyskaj_reszte_dom reszta
+$wypisz_prs reszta
+$tlumacz_dom
+$czytaj_dom
+
+###
+
+tekst = "cos tu pisze";
+warunkowa = tak;
+innawarunkowa = nie;
+
+poki (y > 2 && !innawarunkowa)
+{
+    y -= 1;
+}

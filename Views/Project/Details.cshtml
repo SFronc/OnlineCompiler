@@ -1,0 +1,117 @@
+@model OnlineCompiler.ViewModels.ProjectViewModel
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Details";
+    var username = Model.Username;
+}
+
+<h1>@Model.ProjectObj.Name</h1>
+
+<div>
+    <h4>Project files</h4>
+    <hr />
+
+    @if (Model.ProjectObj.Files != null && Model.ProjectObj.Files.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Files name</th>
+                    <th>Size</th>
+                    <th>Last Modified</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var file in Model.ProjectObj.Files)
+                {
+                    <tr>
+                        <td>@file.Name</td>
+                        <td>@(file.Content.Length) B</td>
+                        <td>@file.LastModified  @file.ModifiedBy</td>
+                        <td>
+                            <a asp-controller="FileModel" asp-action="Index" asp-route-id="@file.Id" class="btn btn-sm btn-outline-primary">Open</a>
+                            <a asp-controller="FileModel" asp-action="Delete" asp-route-id="@file.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                            
+                            @{
+                                var isShared = @file.IsShared;
+                            }
+                            <button class="btn btn-sm @(isShared ? "btn-secondary" : "btn-outline-success") share-btn" 
+                                    data-file-id="@file.Id" 
+                                    data-username="@username"
+                                    data-is-shared="@isShared.ToString().ToLower()">
+                                @(isShared ? "Shared" : "Share")
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No files</p>
+    }
+    <div class="mt-3">
+        <a asp-controller="FileModel" 
+           asp-action="Create" 
+           asp-route-projectId="@Model.ProjectObj.Id" 
+           class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Add new file
+        </a>
+    </div>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.share-btn').click(async function() {
+                const button = $(this);
+                const fileId = button.data('file-id');
+                const username = button.data('username');
+                const isShared = button.data('is-shared') === 'true';
+
+                button.prop('disabled', true);
+                const originalHtml = button.html();
+                button.html('<i class="fas fa-spinner fa-spin"></i>');
+
+                try {
+                    const url = isShared ? '/PublicFiles/Unshare' : '/PublicFiles/Share';
+                    const response = await $.post(url, { fileId, username });
+
+                    if (response.success) {
+                        if (!isShared) {
+                            button.removeClass('btn-outline-success').addClass('btn-secondary');
+                            button.html('<i class="fas fa-link"></i> Shared');
+                            button.data('is-shared', 'true');
+                            toastr.success(response.message);
+                        } else {
+                            button.removeClass('btn-secondary').addClass('btn-outline-success');
+                            button.html('<i class="fas fa-link-slash"></i> Share');
+                            button.data('is-shared', 'false');
+                            toastr.success(response.message);
+                        }
+                    } else {
+                        button.html(originalHtml);
+                        
+                        if (response.status === 404) {
+                            toastr.warning(response.message);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    toastr.error('Network error occurred');
+                    button.html(originalHtml);
+                } finally {
+                    button.prop('disabled', false);
+                }
+            });
+        });
+    </script>
+}

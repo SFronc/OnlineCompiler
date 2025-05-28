@@ -53,7 +53,8 @@ namespace OnlineCompiler.Services
             Directory.CreateDirectory(tempDir);
 
             var inputFile = Path.Combine(tempDir, "input.cz");
-            var poczetFile = Path.Combine(tempDir, "poczet.txt"); 
+            var poczetFile = Path.Combine(tempDir, "poczet.txt");
+            var errorFile = Path.Combine(tempDir, "blad.txt");
 
             try
             {
@@ -75,7 +76,7 @@ namespace OnlineCompiler.Services
                     CreateNoWindow = true,
                     WorkingDirectory = tempDir,
                     StandardOutputEncoding = Encoding.ASCII,
-                    StandardErrorEncoding = Encoding.UTF8
+                    StandardErrorEncoding = Encoding.ASCII
                 };
 
                 var output = new StringBuilder();
@@ -89,7 +90,10 @@ namespace OnlineCompiler.Services
                     process.OutputDataReceived += (sender, args) =>
                     {
                         if (args.Data != null)
+                        {
                             output.AppendLine(args.Data);
+                            Console.WriteLine(args.Data);
+                        }
                         else
                             outputCompletion.SetResult(true);
                     };
@@ -128,6 +132,8 @@ namespace OnlineCompiler.Services
                     );
 
                     string poczetContent = string.Empty;
+                    string errorContent = string.Empty;
+
                     if (File.Exists(poczetFile))
                     {
                         try
@@ -140,12 +146,22 @@ namespace OnlineCompiler.Services
                         }
                     }
 
+                    if (File.Exists(errorFile))
+                    {
+                        try
+                        {
+                            errorContent = await File.ReadAllTextAsync(errorFile, Encoding.UTF8);
+                        }
+                        catch{ }
+                    }
+
                     return new CompilationResult
                     {
                         Success = process.ExitCode == 0,
                         Output = AnsiConverter.ToHtml(output.ToString()),
                         Errors = AnsiConverter.ToHtml(errors.ToString()),
-                        Poczet = poczetContent 
+                        Poczet = poczetContent,
+                        ErrorFile = errorContent
                     };
                 }
             }

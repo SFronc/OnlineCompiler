@@ -26,6 +26,10 @@ namespace OnlineCompiler.Migrations
                     b.Property<DateTime>("CompilatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ErrorFile")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Errors")
                         .IsRequired()
                         .HasColumnType("TEXT");

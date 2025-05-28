@@ -11,6 +11,7 @@ namespace OnlineCompiler.Models
         public string Output { get; set; }
         public string Errors { get; set; }
         public string Poczet { get; set; }
+        public string ErrorFile { get; set; }
         public DateTime CompilatedAt { get; set; } = DateTime.UtcNow;
 
         public int ProjectId { get; set; }

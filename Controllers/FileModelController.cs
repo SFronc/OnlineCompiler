@@ -81,7 +81,8 @@ namespace OnlineCompiler.Controllers
                 success = result.Success,
                 output = result.Output,
                 errors = result.Errors,
-                poczet = result.Poczet
+                poczet = result.Poczet,
+                errorFile = result.ErrorFile
             });
         }
 

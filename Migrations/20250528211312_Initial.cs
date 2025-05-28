@@ -126,6 +126,7 @@ namespace OnlineCompiler.Migrations
                     Output = table.Column<string>(type: "TEXT", nullable: false),
                     Errors = table.Column<string>(type: "TEXT", nullable: false),
                     Poczet = table.Column<string>(type: "TEXT", nullable: false),
+                    ErrorFile = table.Column<string>(type: "TEXT", nullable: false),
                     CompilatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     ProjectId = table.Column<int>(type: "INTEGER", nullable: false)
                 },

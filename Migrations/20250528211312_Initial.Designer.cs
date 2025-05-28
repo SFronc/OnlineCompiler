@@ -11,7 +11,7 @@ using OnlineCompiler.Data;
 namespace OnlineCompiler.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20250528163826_Initial")]
+    [Migration("20250528211312_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -27,6 +27,10 @@ namespace OnlineCompiler.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CompilatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ErrorFile")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Errors")

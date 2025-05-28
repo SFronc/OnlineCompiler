@@ -325,7 +325,7 @@
                     bytecodeResult.innerHTML = data.poczet || "(no bytecode generated)";
                 } else {
                     compileResult.innerHTML = `<span class="error-text">Error:</span>\n${data.errors}`;
-                    bytecodeResult.innerHTML = "(bytecode generation failed)";
+                    bytecodeResult.innerHTML = data.errorFile;
                 }
             } catch (error) {
                 compileResult.innerHTML = `<span class="error-text">Fatal Error:</span>\n${error.message}`;

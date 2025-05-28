@@ -302,3 +302,4 @@ C:\Users\User\Documents\programyCSharp\Lab10\OnlinePersolanizedCompilerApp\Onlin
 C:\Users\User\Documents\programyCSharp\Lab10\OnlinePersolanizedCompilerApp\OnlineCompiler\obj\Debug\net8.0\ref\OnlineCompiler.dll
 C:\Users\User\Documents\programyCSharp\Lab10\OnlinePersolanizedCompilerApp\OnlineCompiler\bin\Debug\net8.0\package-lock.json
 C:\Users\User\Documents\programyCSharp\Lab10\OnlinePersolanizedCompilerApp\OnlineCompiler\bin\Debug\net8.0\package.json
+C:\Users\User\Documents\programyCSharp\Lab10\OnlinePersolanizedCompilerApp\OnlineCompiler\obj\Debug\net8.0\OnlineCompiler.sourcelink.json

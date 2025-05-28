@@ -307,31 +307,36 @@
             }
         }
 
-        async function compile() {
-            const compileResult = document.getElementById("compileResult");
-            const bytecodeResult = document.getElementById("bytecodeResult");
-            
-            compileResult.innerHTML = "Compiling...";
-            bytecodeResult.innerHTML = "Generating bytecode...";
-            
-            try {
-                const response = await fetch(`/FileModel/Compile/${currentFileId}`, {
-                    method: 'POST'
-                });
+         async function compile() {
+        const compileResult = document.getElementById("compileResult");
+        const bytecodeResult = document.getElementById("bytecodeResult");
+        const bytecodeHeader = document.querySelector("#bytecode .panel-header");
+        
+        compileResult.innerHTML = "Compiling...";
+        bytecodeResult.innerHTML = "Generating bytecode...";
+        bytecodeHeader.textContent = "Bytecode"; 
+        
+        try {
+            const response = await fetch(`/FileModel/Compile/${currentFileId}`, {
+                method: 'POST'
+            });
 
-                const data = await response.json();
-                if (data.success) {
-                    compileResult.innerHTML = `<span class="success-text">Success:</span>\n${data.output}`;
-                    bytecodeResult.innerHTML = data.poczet || "(no bytecode generated)";
-                } else {
-                    compileResult.innerHTML = `<span class="error-text">Error:</span>\n${data.errors}`;
-                    bytecodeResult.innerHTML = data.errorFile;
-                }
-            } catch (error) {
-                compileResult.innerHTML = `<span class="error-text">Fatal Error:</span>\n${error.message}`;
-                bytecodeResult.innerHTML = "(bytecode generation failed)";
+            const data = await response.json();
+            if (data.success) {
+                compileResult.innerHTML = `<span class="success-text">Success:</span>\n${data.output}`;
+                bytecodeResult.innerHTML = data.poczet || "(no bytecode generated)";
+                bytecodeHeader.textContent = "Bytecode"; 
+            } else {
+                compileResult.innerHTML = `<span class="error-text">Error:</span>\n${data.errors}`;
+                bytecodeResult.innerHTML = data.errorFile || data.errors; 
+                bytecodeHeader.textContent = "Error details"; 
             }
+        } catch (error) {
+            compileResult.innerHTML = `<span class="error-text">Fatal Error:</span>\n${error.message}`;
+            bytecodeResult.innerHTML = "(bytecode generation failed)";
+            bytecodeHeader.textContent = "Error details"; 
         }
+    }
 
         function exit() {
             window.location.href = '/Project/Index';

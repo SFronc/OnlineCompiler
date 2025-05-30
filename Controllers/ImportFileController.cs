@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -23,7 +24,10 @@ namespace OnlineCompiler.Controllers
         // GET: ImportFile
         public async Task<IActionResult> Index()
         {
-            var dataBaseContext = _context.ImportFile.Include(i => i.ImportedFile).Include(i => i.OriginalPublicFile).Include(i => i.Project);
+            var dataBaseContext = _context.ImportFile.Include(i => i.ImportedFile)
+                .Include(i => i.OriginalPublicFile)
+                .ThenInclude(i => i.Share)
+                .ThenInclude(i => i.Versions);
             return View(await dataBaseContext.ToListAsync());
         }
 
@@ -134,9 +138,9 @@ namespace OnlineCompiler.Controllers
         }
 
         // GET: ImportFile/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? fileId)
         {
-            if (id == null || _context.ImportFile == null)
+            if (fileId == null || _context.ImportFile == null)
             {
                 return NotFound();
             }
@@ -145,7 +149,7 @@ namespace OnlineCompiler.Controllers
                 .Include(i => i.ImportedFile)
                 .Include(i => i.OriginalPublicFile)
                 .Include(i => i.Project)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == fileId);
             if (importFile == null)
             {
                 return NotFound();
@@ -159,15 +163,22 @@ namespace OnlineCompiler.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            Console.WriteLine($"=========================DELETINGFILE ID:{id}=================");
+            
             if (_context.ImportFile == null)
             {
                 return Problem("Entity set 'DataBaseContext.ImportFile'  is null.");
             }
-            var importFile = await _context.ImportFile.FindAsync(id);
-            if (importFile != null)
+            var importFile = await _context.ImportFile.Include(f => f.ImportedFile).FirstOrDefaultAsync( f => f.Id == id);
+            var importFileModel = importFile.ImportedFile;
+
+
+            if (importFileModel != null)
             {
-                _context.ImportFile.Remove(importFile);
+                _context.FileModel.Remove(importFileModel);
             }
+
+            _context.ImportFile.Remove(importFile);
             
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -241,12 +252,15 @@ namespace OnlineCompiler.Controllers
         [HttpPost]
         public async Task<IActionResult> Update(int fileId)
         {
+            Console.WriteLine($"========Update fileId:{fileId}===========");
             var importFile = await _context.ImportFile
                 .Include(f => f.ImportedFile)
                 .Include(f => f.OriginalPublicFile)
                 .ThenInclude(f => f.Share)
                 .ThenInclude(f => f.Versions)
                 .FirstOrDefaultAsync(f => f.Id == fileId);
+
+            
 
             if (importFile == null)
             {
@@ -267,17 +281,14 @@ namespace OnlineCompiler.Controllers
             var latestVersion = importFile.OriginalPublicFile.Share.Versions[importFile.OriginalPublicFile.Share.Versions.Count - 1];
 
             //importFile.ImportDate = latestVersion.Version;
-            importFile.ImportDate = importFile.OriginalPublicFile.LastModified;
+            importFile.ImportDate = latestVersion.Version;
             importFile.ImportedFile.Content = latestVersion.Content.ToArray();
-
-            Console.WriteLine("======================");
-            Console.WriteLine(importFile.ImportDate);
-            Console.WriteLine(importFile.OriginalPublicFile.LastModified);
-            Console.WriteLine("======================");
 
             //var importFile = await _context.ImportFile.FirstOrDefaultAsync(f => f.Id == fileId);
             //var test = importFile == null;
             //Console.WriteLine($"================={test}==================");
+
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }

@@ -46,7 +46,7 @@
 
                             @if(isShared && file.Share != null && file.LastModified != file.Share.UpdateDate){
                             <form asp-controller="PublicFiles" 
-                                asp-action="UpdateVersion" 
+                                asp-action="Unshare" 
                                 method="post" 
                                 style="display:inline;">
                                 <input type="hidden" name="fileId" value="@file.Id" />

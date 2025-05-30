@@ -36,7 +36,6 @@ namespace OnlineCompiler.Controllers
             .ToListAsync();
 
             ViewBag.ImportedFileIds = importedFileIds;
-            ViewBag.CurrentUserId = userId;
 
             return View(publicFiles);
         }
@@ -242,49 +241,62 @@ namespace OnlineCompiler.Controllers
     [HttpPost]
     public async Task<IActionResult> Unshare(int fileId)
     {
+            Console.WriteLine($"==================UNSHARE METHOD, fileId: {fileId} ==========");
         try
-    {
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        
-        var publicFile = await _context.PublicFiles
-            .FirstOrDefaultAsync(pf => pf.PublicFileId == fileId && pf.IsActive);
+            {
+                Console.WriteLine("==================UNSHARE METHOD INSIDE TRY==========");
+                using var transaction = await _context.Database.BeginTransactionAsync();
 
-        var file = await _context.FileModel.FindAsync(fileId);
-            
-        if (publicFile == null)
-        {
-            return Json(new {
-                success = false,
-                message = "Shared file record not found",
-                status = 404
-            });
-        }
+                var publicFile = await _context.PublicFiles
+                    .FirstOrDefaultAsync(pf => pf.PublicFileId == fileId && pf.IsActive);
 
-        publicFile.IsActive = false;
-        publicFile.UpdateDate = DateTime.UtcNow;
-        
-        if (file != null)
-        {
-            file.IsShared = false;
-        }
+                var file = await _context.FileModel.FindAsync(fileId);
 
-        await _context.SaveChangesAsync();
-        await transaction.CommitAsync();
+                if (file == null)
+                {
+                    Console.WriteLine($"PublicFile is NULL ");
+                }
+                else
+                    Console.WriteLine($"File is NOT NULL ({publicFile.Id})");
 
-        return Json(new {
-            success = true,
-            message = "File unshared successfully",
-            status = 200
-        });
-    }
-    catch (Exception ex)
-    {
-        return Json(new {
-            success = false,
-            message = $"Internal server error: {ex.Message}",
-            status = 500
-        });
-    }
+
+                if (publicFile == null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Shared file record not found",
+                        status = 404
+                    });
+                }
+
+                publicFile.IsActive = false;
+                //publicFile.UpdateDate = DateTime.UtcNow;
+
+                if (file != null)
+                {
+                    file.IsShared = false;
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "File unshared successfully",
+                    status = 200
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"Internal server error: {ex.Message}",
+                    status = 500
+                });
+            }
     }
 
     [HttpPost]

@@ -36,7 +36,7 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ImportDate)
-                    @if(item.OriginalPublicFile != null && item.ImportDate < item.OriginalPublicFile.LastModified){
+                    @if(item.OriginalPublicFile != null && item.ImportDate < item.OriginalPublicFile.Share.Versions[item.OriginalPublicFile.Share.Versions.Count - 1].Version){
                         <span style="color: orange;">
                             New version released (@item.OriginalPublicFile.LastModified.ToString())
                         </span>
@@ -48,7 +48,7 @@
                 <td>
                     <a asp-action="ManageProjects" asp-route-fileId="@item.Id" class="btn btn-primary">Use</a> 
                     <a asp-action="Delete" asp-route-fileId="@item.Id" class="btn btn-danger">Delete</a> 
-                    @if(item.OriginalPublicFile != null && item.ImportDate < item.OriginalPublicFile.LastModified){
+                    @if(item.OriginalPublicFile != null && item.ImportDate < item.OriginalPublicFile.Share.Versions[item.OriginalPublicFile.Share.Versions.Count - 1].Version){
                        
                         <form asp-action="Update" method="post" style="display: inline;">
                             <input type="hidden" name="fileId" value="@item.Id" />

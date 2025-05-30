@@ -22,7 +22,7 @@
     <tbody>
         @foreach (var item in Model)
         {
-            var isImported = ImportedFileIds.Contains(item.Id);
+            var isImported = ImportedFileIds.Contains(item.AuthorOriginalFileId);
             <tr>
                 <td>@item.AuthorOriginalFile.Name</td>
                 <td>

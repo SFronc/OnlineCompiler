@@ -9,171 +9,171 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = OnlineCompiler
 build_property.RootNamespace = OnlineCompiler
-build_property.ProjectDir = c:\Users\User\Documents\programyCSharp\Lab10\OnlinePersolanizedCompilerApp\OnlineCompiler\
+build_property.ProjectDir = C:\Users\User\Documents\programyCSharp\Lab10\OnlinePersolanizedCompilerApp\OnlineCompiler\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = c:\Users\User\Documents\programyCSharp\Lab10\OnlinePersolanizedCompilerApp\OnlineCompiler
+build_property.MSBuildProjectDirectory = C:\Users\User\Documents\programyCSharp\Lab10\OnlinePersolanizedCompilerApp\OnlineCompiler
 build_property._RazorSourceGeneratorDebug = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/FileModel/Create.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/FileModel/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmlsZU1vZGVsXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/FileModel/Delete.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/FileModel/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmlsZU1vZGVsXERlbGV0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/FileModel/Details.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/FileModel/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmlsZU1vZGVsXERldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/FileModel/Edit.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/FileModel/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmlsZU1vZGVsXEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/FileModel/Index.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/FileModel/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmlsZU1vZGVsXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Home/Index.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Home/Privacy.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/ImportFile/Create.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/ImportFile/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW1wb3J0RmlsZVxDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/ImportFile/Delete.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/ImportFile/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW1wb3J0RmlsZVxEZWxldGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/ImportFile/Details.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/ImportFile/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW1wb3J0RmlsZVxEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/ImportFile/Edit.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/ImportFile/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW1wb3J0RmlsZVxFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/ImportFile/Index.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/ImportFile/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW1wb3J0RmlsZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/ImportFile/ManageProjects.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/ImportFile/ManageProjects.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW1wb3J0RmlsZVxNYW5hZ2VQcm9qZWN0cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Project/Create.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Project/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdFxDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Project/Delete.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Project/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdFxEZWxldGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Project/Details.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Project/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdFxEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Project/Edit.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Project/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdFxFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Project/Index.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Project/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdFxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/PublicFiles/Create.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/PublicFiles/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHVibGljRmlsZXNcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/PublicFiles/Delete.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/PublicFiles/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHVibGljRmlsZXNcRGVsZXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/PublicFiles/Details.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/PublicFiles/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHVibGljRmlsZXNcRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/PublicFiles/Edit.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/PublicFiles/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHVibGljRmlsZXNcRWRpdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/PublicFiles/Index.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/PublicFiles/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHVibGljRmlsZXNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Shared/Error.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Shared/_ValidationScriptsPartial.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/UserFile/Create.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/UserFile/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckZpbGVcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/UserFile/Delete.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/UserFile/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckZpbGVcRGVsZXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/UserFile/Details.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/UserFile/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckZpbGVcRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/UserFile/Edit.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/UserFile/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckZpbGVcRWRpdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/UserFile/Index.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/UserFile/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckZpbGVcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/User/Create.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/User/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/User/Delete.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/User/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxEZWxldGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/User/Details.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/User/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/User/Edit.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/User/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/User/Index.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/User/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/User/IndexOld.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/User/IndexOld.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxJbmRleE9sZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/User/Login.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/User/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/_ViewImports.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/_ViewStart.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[c:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Shared/_Layout.cshtml]
+[C:/Users/User/Documents/programyCSharp/Lab10/OnlinePersolanizedCompilerApp/OnlineCompiler/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-6ecjz11cb7

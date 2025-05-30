@@ -1,7 +1,6 @@
 @model IEnumerable<OnlineCompiler.Models.PublicFiles>
 @using Microsoft.AspNetCore.Http
 
-
 @{
     ViewData["Title"] = "Publicly Shared Files";
     var currentUsername = Context.Session.GetString("Username");
@@ -25,7 +24,7 @@
         {
             var isImported = ImportedFileIds.Contains(item.Id);
             <tr>
-                <td>@item.PublicFile.Name</td>
+                <td>@item.AuthorOriginalFile.Name</td>
                 <td>
                     @if(Context.Session.GetString("Username") == item.Author){
                         <p>You</p>
@@ -39,14 +38,26 @@
                 <td>
                     @if(isImported){
                         <span class="text-success">
-                                <i class="fas fa-check-circle"></i> Imported
+                            <i class="fas fa-check-circle"></i> Imported
                         </span>
                     }
                     else{
-                    <form asp-controller="ImportFile" asp-action="Import" method="post">
-                <input type="hidden" name="fileId" value="@item.PublicFileId" />
-                <button type="submit" class="btn btn-primary">Import</button>
-                </form>
+                        <form asp-controller="ImportFile" asp-action="Import" method="post" onsubmit="return validateVersionSelection(this)">
+                            <input type="hidden" name="fileId" value="@item.PublicFileId" />
+                            
+                            <div class="form-group">
+                                <label for="versionSelect-@item.PublicFileId">Select Version:</label>
+                                <select class="form-control" id="versionSelect-@item.PublicFileId" name="versionIndex" required>
+                                    <option value="">-- Select Version --</option>
+                                    @for (int i = 0; i < item.Versions.Count; i++)
+                                    {
+                                        <option value="@i">@item.Versions[i].Version.ToString("g")</option>
+                                    }
+                                </select>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary mt-2">Import</button>
+                        </form>
                     }
                 </td>
                 }
@@ -54,3 +65,42 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        function validateVersionSelection(form) {
+            const select = form.querySelector('select[name="versionIndex"]');
+            if (!select.value) {
+                alert('Please select a version to import');
+                return false;
+            }
+            return true;
+        }
+
+        function importFile(fileId, versionIndex, buttonElement) {
+            fetch('/ImportFile/Import', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `fileId=${fileId}&versionIndex=${versionIndex}`
+            })
+            .then(response => {
+                if (response.ok) {
+                    const td = buttonElement.parentElement;
+                    td.innerHTML = `
+                        <span class="text-success">
+                            <i class="fas fa-check-circle"></i> Imported
+                        </span>
+                    `;
+                } else {
+                    alert('Error importing file');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error importing file');
+            });
+        }
+    </script>
+}

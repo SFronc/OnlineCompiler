@@ -69,8 +69,15 @@ namespace OnlineCompiler.Controllers
             }
 
             List<FileModel> projFiles = await _context.FileModel.Where(f => f.ProjectId == projId && f.Id != id).ToListAsync();
+            List<FileModel> libFiles = await _context.Librarie
+                                            .Include(l => l.ImportedFile)
+                                            .ThenInclude(i => i.ImportedFile)
+                                            .Where(l => l.ProjectId == projId)
+                                            .Select(l => l.ImportedFile.ImportedFile)
+                                            .Distinct()
+                                            .ToListAsync();
 
-            var result = await _compiler.CompileAsync(code, "cz", projFiles);
+            var result = await _compiler.CompileAsync(code, "cz", projFiles, libFiles);
 
             Console.WriteLine("===========================");
              Console.WriteLine(result.Poczet);

@@ -11,9 +11,10 @@ namespace OnlineCompiler.Models
         public byte[] Content { get; set; }
         public string Type { get; set; }
         public DateTime LastModified { get; set; }
-        public int ProjectId { get; set; }
-        public Project Project { get; set; }
+        public int? ProjectId { get; set; }
+        public Project? Project { get; set; }
         public bool IsShared { get; set; } = false;
+        public PublicFiles? Share { get; set; }
         public string? ModifiedBy { get; set; } = string.Empty;
     }
 }

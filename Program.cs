@@ -6,8 +6,6 @@ using OnlineCompiler.Services;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<DataBaseContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DataBaseContext") ?? throw new InvalidOperationException("Connection string 'DataBaseContext' not found.")));
-builder.Services.AddDbContext<DataBaseContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("UserFileContext") ?? throw new InvalidOperationException("Connection string 'UserFileContext' not found.")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -40,6 +38,32 @@ builder.Services.AddScoped<ICompilerService>(provider =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+    await dbContext.Database.MigrateAsync(); 
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        await DbInitializer.Initialize(
+            services,
+            builder.Configuration["AdminCredentials:Username"] ?? "admin",
+            builder.Configuration["AdminCredentials:Password"] ?? "admin");
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database.");
+    }
+}
+
+
+
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -49,11 +73,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
-    dbContext.Database.Migrate(); // Stosuje wszystkie oczekujące migracje
-}
 
 app.Use(async (ctx, next) =>
 {

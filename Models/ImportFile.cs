@@ -9,14 +9,16 @@ namespace OnlineCompiler.Models
         public int Id { get; set; }
         public int UserId { get; set; }
         public Project? Project { get; set; }
-    
+
         public int ImportedFileId { get; set; }
         public FileModel ImportedFile { get; set; }
-    
+
         public int OriginalPublicFileId { get; set; }
-        public PublicFiles OriginalPublicFile { get; set; }
-    
+        public FileModel OriginalPublicFile { get; set; }
+
         public DateTime ImportDate { get; set; } = DateTime.UtcNow;
         public string? ImportedBy { get; set; }
+        
+        public ICollection<Library> ProjectLibraries { get; set; } = new List<Library>();
     }
 }

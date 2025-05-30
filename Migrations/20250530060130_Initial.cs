@@ -12,22 +12,6 @@ namespace OnlineCompiler.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Librarie",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: false),
-                    Code = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Librarie", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "User",
                 columns: table => new
                 {
@@ -36,37 +20,12 @@ namespace OnlineCompiler.Migrations
                     Username = table.Column<string>(type: "TEXT", nullable: false),
                     Email = table.Column<string>(type: "TEXT", nullable: false),
                     PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
-                    RegisterDate = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    RegisterDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Role = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_User", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "LibraryAccesse",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
-                    LibraryId = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LibraryAccesse", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_LibraryAccesse_Librarie_LibraryId",
-                        column: x => x.LibraryId,
-                        principalTable: "Librarie",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_LibraryAccesse_User_UserId",
-                        column: x => x.UserId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -151,7 +110,7 @@ namespace OnlineCompiler.Migrations
                     Content = table.Column<byte[]>(type: "BLOB", nullable: false),
                     Type = table.Column<string>(type: "TEXT", nullable: false),
                     LastModified = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ProjectId = table.Column<int>(type: "INTEGER", nullable: true),
                     IsShared = table.Column<bool>(type: "INTEGER", nullable: false),
                     ModifiedBy = table.Column<string>(type: "TEXT", nullable: true)
                 },
@@ -162,6 +121,138 @@ namespace OnlineCompiler.Migrations
                         name: "FK_FileModel_Project_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Project",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ImportFile",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ProjectId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ImportedFileId = table.Column<int>(type: "INTEGER", nullable: false),
+                    OriginalPublicFileId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ImportDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ImportedBy = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImportFile", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ImportFile_FileModel_ImportedFileId",
+                        column: x => x.ImportedFileId,
+                        principalTable: "FileModel",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ImportFile_FileModel_OriginalPublicFileId",
+                        column: x => x.OriginalPublicFileId,
+                        principalTable: "FileModel",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ImportFile_Project_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Project",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PublicFiles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    PublicFileId = table.Column<int>(type: "INTEGER", nullable: true),
+                    AuthorOriginalFileId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Author = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    UpdateDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PublicFiles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PublicFiles_FileModel_AuthorOriginalFileId",
+                        column: x => x.AuthorOriginalFileId,
+                        principalTable: "FileModel",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Librarie",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ImportedFileId = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    AssignmentDate = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Librarie", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Librarie_ImportFile_ImportedFileId",
+                        column: x => x.ImportedFileId,
+                        principalTable: "ImportFile",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Librarie_Project_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Project",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FileVersion",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Content = table.Column<byte[]>(type: "BLOB", nullable: false),
+                    Version = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    PublicFilesId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FileVersion", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FileVersion_PublicFiles_PublicFilesId",
+                        column: x => x.PublicFilesId,
+                        principalTable: "PublicFiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LibraryAccesse",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
+                    LibraryId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LibraryAccesse", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_LibraryAccesse_Librarie_LibraryId",
+                        column: x => x.LibraryId,
+                        principalTable: "Librarie",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_LibraryAccesse_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -192,63 +283,6 @@ namespace OnlineCompiler.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "PublicFiles",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    PublicFileId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Author = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    UpdateDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PublicFiles", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PublicFiles_FileModel_PublicFileId",
-                        column: x => x.PublicFileId,
-                        principalTable: "FileModel",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ImportFile",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
-                    ProjectId = table.Column<int>(type: "INTEGER", nullable: true),
-                    ImportedFileId = table.Column<int>(type: "INTEGER", nullable: false),
-                    OriginalPublicFileId = table.Column<int>(type: "INTEGER", nullable: false),
-                    ImportDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ImportedBy = table.Column<string>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ImportFile", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ImportFile_FileModel_ImportedFileId",
-                        column: x => x.ImportedFileId,
-                        principalTable: "FileModel",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ImportFile_Project_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Project",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_ImportFile_PublicFiles_OriginalPublicFileId",
-                        column: x => x.OriginalPublicFileId,
-                        principalTable: "PublicFiles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_CompilationResult_ProjectId",
                 table: "CompilationResult",
@@ -258,6 +292,11 @@ namespace OnlineCompiler.Migrations
                 name: "IX_FileModel_ProjectId",
                 table: "FileModel",
                 column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FileVersion_PublicFilesId",
+                table: "FileVersion",
+                column: "PublicFilesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ImportFile_ImportedFileId",
@@ -272,6 +311,16 @@ namespace OnlineCompiler.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ImportFile_ProjectId",
                 table: "ImportFile",
+                column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Librarie_ImportedFileId",
+                table: "Librarie",
+                column: "ImportedFileId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Librarie_ProjectId",
+                table: "Librarie",
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
@@ -300,9 +349,10 @@ namespace OnlineCompiler.Migrations
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PublicFiles_PublicFileId",
+                name: "IX_PublicFiles_AuthorOriginalFileId",
                 table: "PublicFiles",
-                column: "PublicFileId");
+                column: "AuthorOriginalFileId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserFile_UserId1",
@@ -317,7 +367,7 @@ namespace OnlineCompiler.Migrations
                 name: "CompilationResult");
 
             migrationBuilder.DropTable(
-                name: "ImportFile");
+                name: "FileVersion");
 
             migrationBuilder.DropTable(
                 name: "LibraryAccesse");
@@ -333,6 +383,9 @@ namespace OnlineCompiler.Migrations
 
             migrationBuilder.DropTable(
                 name: "Librarie");
+
+            migrationBuilder.DropTable(
+                name: "ImportFile");
 
             migrationBuilder.DropTable(
                 name: "FileModel");

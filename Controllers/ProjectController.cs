@@ -23,8 +23,17 @@ namespace OnlineCompiler.Controllers
         // GET: Project
         public async Task<IActionResult> Index()
         {
-            var dataBaseContext = _context.Project.Include(p => p.User);
-            return View(await dataBaseContext.ToListAsync());
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var projects = await _context.Project
+                .Where(p => p.UserId == userId)
+                .ToListAsync();
+
+            return View(projects);
         }
 
         // GET: Project/Details/5
@@ -37,6 +46,7 @@ namespace OnlineCompiler.Controllers
 
             var project = await _context.Project
                 .Include(p => p.Files)
+                .ThenInclude(f => f.Share)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (project == null)
             {

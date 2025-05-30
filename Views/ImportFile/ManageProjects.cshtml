@@ -1,0 +1,26 @@
+@using OnlineCompiler.ViewModels
+@model ManageProjectsViewModel
+
+<h2>Assign file '@Model.FileName' to projects</h2>
+
+<form asp-action="ManageProjects" method="post">
+    <input type="hidden" asp-for="FileId" />
+    
+    <div class="form-group">
+        @for (int i = 0; i < Model.Projects.Count; i++)
+        {
+            <div class="form-check">
+                <input type="hidden" asp-for="@Model.Projects[i].ProjectId" />
+                <input type="hidden" asp-for="@Model.Projects[i].ProjectName" />
+                <input class="form-check-input" type="checkbox" 
+                       asp-for="@Model.Projects[i].IsSelected" />
+                <label class="form-check-label" asp-for="@Model.Projects[i].IsSelected">
+                    @Model.Projects[i].ProjectName
+                </label>
+            </div>
+        }
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

@@ -25,9 +25,11 @@ namespace OnlineCompiler.Controllers
             var userId = HttpContext.Session.GetInt32("UserId");
 
             var publicFiles = await _context.PublicFiles
-            .Include(pf => pf.PublicFile)
-            .Where(pf => pf.IsActive)
+            .Include(pf => pf.AuthorOriginalFile)
+            .Include(pf => pf.Versions)
             .ToListAsync();
+
+            
 
             var importedFileIds = await _context.ImportFile.Where(imp => imp.UserId == userId)
             .Select(imp => imp.OriginalPublicFileId)
@@ -199,25 +201,26 @@ namespace OnlineCompiler.Controllers
 
         file.IsShared = true;
 
-        //var existingShare = await _context.PublicFiles
-        //    .FirstOrDefaultAsync(pf => pf.PublicFileId == fileId && pf.IsActive);
-            
-        //if (existingShare != null)
-        //{
-        //    return BadRequest("File is already shared");
-        //}
-
         var publicFile = new PublicFiles
         {
             PublicFileId = fileId,
+            AuthorOriginalFileId = fileId,
             Author = username,
             UpdateDate = DateTime.UtcNow,
+            AuthorOriginalFile = file,
             IsActive = true
         };
+
+        file.Share = publicFile;
+
+
 
         _context.PublicFiles.Add(publicFile);
         await _context.SaveChangesAsync();
         await transaction.CommitAsync();
+
+
+                UpdateVersion(file.Id);
 
                 return Json(new
                 {
@@ -282,6 +285,47 @@ namespace OnlineCompiler.Controllers
             status = 500
         });
     }
+    }
+
+    [HttpPost]
+    public IActionResult UpdateVersion(int fileId)
+    {
+        var file = _context.FileModel
+            .Include(f => f.Share)
+            .ThenInclude(s => s.Versions)
+            .FirstOrDefault(f => f.Id == fileId);
+        if (file == null)
+        {
+            return NotFound("File not found");
+        }
+
+        var share = file.Share;
+        if (share == null)
+        {
+            return NotFound("Shared file not found");
+        }
+
+        share.UpdateDate = file.LastModified;
+        var newVer = new FileVersion
+        {
+            Version = DateTime.UtcNow,
+            Content = file.Content.ToArray(),
+            PublicFilesId = share.Id
+        };
+
+            Console.WriteLine("==========CURVERSIONS=========");
+
+            foreach (var item in share.Versions)
+            {
+                Console.WriteLine(item.Version);
+            }
+            Console.WriteLine("===================");
+
+            share.Versions.Add(newVer);
+        _context.SaveChanges();
+
+        TempData["Message"] = "File version updated successfully";
+        return RedirectToAction("Details", "Project", new { id = file.ProjectId });
     }
 
         private bool PublicFilesExists(int id)

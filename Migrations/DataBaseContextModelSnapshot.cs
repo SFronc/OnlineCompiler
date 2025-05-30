@@ -78,7 +78,7 @@ namespace OnlineCompiler.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ProjectId")
+                    b.Property<int?>("ProjectId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Type")
@@ -90,6 +90,29 @@ namespace OnlineCompiler.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("FileModel");
+                });
+
+            modelBuilder.Entity("OnlineCompiler.Models.FileVersion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<byte[]>("Content")
+                        .IsRequired()
+                        .HasColumnType("BLOB");
+
+                    b.Property<int>("PublicFilesId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Version")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PublicFilesId");
+
+                    b.ToTable("FileVersion");
                 });
 
             modelBuilder.Entity("OnlineCompiler.Models.ImportFile", b =>
@@ -133,22 +156,23 @@ namespace OnlineCompiler.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Code")
-                        .IsRequired()
+                    b.Property<DateTime>("AssignmentDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("ImportedFileId")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ImportedFileId");
+
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("Librarie");
                 });
@@ -241,10 +265,13 @@ namespace OnlineCompiler.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("AuthorOriginalFileId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("PublicFileId")
+                    b.Property<int?>("PublicFileId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("UpdateDate")
@@ -252,7 +279,8 @@ namespace OnlineCompiler.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PublicFileId");
+                    b.HasIndex("AuthorOriginalFileId")
+                        .IsUnique();
 
                     b.ToTable("PublicFiles");
                 });
@@ -272,6 +300,10 @@ namespace OnlineCompiler.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("RegisterDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Username")
@@ -333,11 +365,20 @@ namespace OnlineCompiler.Migrations
                 {
                     b.HasOne("OnlineCompiler.Models.Project", "Project")
                         .WithMany("Files")
-                        .HasForeignKey("ProjectId")
+                        .HasForeignKey("ProjectId");
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("OnlineCompiler.Models.FileVersion", b =>
+                {
+                    b.HasOne("OnlineCompiler.Models.PublicFiles", "PublicFiles")
+                        .WithMany("Versions")
+                        .HasForeignKey("PublicFilesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Project");
+                    b.Navigation("PublicFiles");
                 });
 
             modelBuilder.Entity("OnlineCompiler.Models.ImportFile", b =>
@@ -348,7 +389,7 @@ namespace OnlineCompiler.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OnlineCompiler.Models.PublicFiles", "OriginalPublicFile")
+                    b.HasOne("OnlineCompiler.Models.FileModel", "OriginalPublicFile")
                         .WithMany()
                         .HasForeignKey("OriginalPublicFileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -365,10 +406,29 @@ namespace OnlineCompiler.Migrations
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("OnlineCompiler.Models.Library", b =>
+                {
+                    b.HasOne("OnlineCompiler.Models.ImportFile", "ImportedFile")
+                        .WithMany("ProjectLibraries")
+                        .HasForeignKey("ImportedFileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OnlineCompiler.Models.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ImportedFile");
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("OnlineCompiler.Models.LibraryAccess", b =>
                 {
                     b.HasOne("OnlineCompiler.Models.Library", "Library")
-                        .WithMany("AccessibleBy")
+                        .WithMany()
                         .HasForeignKey("LibraryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -396,7 +456,7 @@ namespace OnlineCompiler.Migrations
             modelBuilder.Entity("OnlineCompiler.Models.ProjectLibrary", b =>
                 {
                     b.HasOne("OnlineCompiler.Models.Library", "Library")
-                        .WithMany("UsedInProjects")
+                        .WithMany()
                         .HasForeignKey("LibraryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -414,13 +474,13 @@ namespace OnlineCompiler.Migrations
 
             modelBuilder.Entity("OnlineCompiler.Models.PublicFiles", b =>
                 {
-                    b.HasOne("OnlineCompiler.Models.FileModel", "PublicFile")
-                        .WithMany()
-                        .HasForeignKey("PublicFileId")
+                    b.HasOne("OnlineCompiler.Models.FileModel", "AuthorOriginalFile")
+                        .WithOne("Share")
+                        .HasForeignKey("OnlineCompiler.Models.PublicFiles", "AuthorOriginalFileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("PublicFile");
+                    b.Navigation("AuthorOriginalFile");
                 });
 
             modelBuilder.Entity("OnlineCompiler.Models.UserFile", b =>
@@ -434,11 +494,14 @@ namespace OnlineCompiler.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("OnlineCompiler.Models.Library", b =>
+            modelBuilder.Entity("OnlineCompiler.Models.FileModel", b =>
                 {
-                    b.Navigation("AccessibleBy");
+                    b.Navigation("Share");
+                });
 
-                    b.Navigation("UsedInProjects");
+            modelBuilder.Entity("OnlineCompiler.Models.ImportFile", b =>
+                {
+                    b.Navigation("ProjectLibraries");
                 });
 
             modelBuilder.Entity("OnlineCompiler.Models.Project", b =>
@@ -448,6 +511,11 @@ namespace OnlineCompiler.Migrations
                     b.Navigation("Files");
 
                     b.Navigation("ImportedFile");
+                });
+
+            modelBuilder.Entity("OnlineCompiler.Models.PublicFiles", b =>
+                {
+                    b.Navigation("Versions");
                 });
 
             modelBuilder.Entity("OnlineCompiler.Models.User", b =>

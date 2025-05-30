@@ -10,7 +10,7 @@ namespace OnlineCompiler.Services
 {
     public interface ICompilerService
     {
-        Task<CompilationResult> CompileAsync(string code, string language, List<FileModel> projFiles);
+        Task<CompilationResult> CompileAsync(string code, string language, List<FileModel> projFiles, List<FileModel> libFiles);
     }
 
     public class CompilerService : ICompilerService
@@ -47,7 +47,7 @@ namespace OnlineCompiler.Services
                 throw new DirectoryNotFoundException($"Lib directory not found at: {_libPath}");
         }
 
-        public async Task<CompilationResult> CompileAsync(string code, string language, List<FileModel> projFiles)
+        public async Task<CompilationResult> CompileAsync(string code, string language, List<FileModel> projFiles, List<FileModel> libFiles)
         {
             var tempDir = Path.Combine(Path.GetTempPath(), $"compile_{Guid.NewGuid()}");
             Directory.CreateDirectory(tempDir);
@@ -62,6 +62,12 @@ namespace OnlineCompiler.Services
 
                 foreach (var item in projFiles)
                 {
+                    await File.WriteAllBytesAsync(Path.Combine(tempDir, item.Name + ".cz"), item.Content);
+                }
+
+                foreach (var item in libFiles)
+                {
+                    Console.WriteLine($"==============:{item.Name}:==================");
                     await File.WriteAllBytesAsync(Path.Combine(tempDir, item.Name + ".cz"), item.Content);
                 }
 

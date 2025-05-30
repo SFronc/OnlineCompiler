@@ -32,6 +32,14 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="PublicFiles" asp-action="Index">Public Repository</a>
                             </li>
+                            @if(Context.Session.GetString("IsAdmin") == "true"){
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="User" asp-action="Create">Add Users</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="User" asp-action="Details">All Users list</a>
+                                </li>
+                            }
                         }
                         else{
                             <li class="nav-item">

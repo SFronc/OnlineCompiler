@@ -174,54 +174,120 @@ namespace OnlineCompiler.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Import(int fileId)
+        public async Task<IActionResult> Import(int fileId, int versionIndex)
         {
-            var username = HttpContext.Session.GetString("Username");
-
-            var publicFile = _context.FileModel.FirstOrDefault(pf => pf.Id == fileId);
-
-            if (publicFile == null)
+            try
             {
-                return NotFound();
+                var publicFile = await _context.PublicFiles
+                    .Include(pf => pf.Versions)
+                    .Include(pf => pf.AuthorOriginalFile)
+                    .FirstOrDefaultAsync(pf => pf.PublicFileId == fileId);
+
+                if (publicFile == null)
+                {
+                    return NotFound($"PublicFile not found.  fileId: {fileId}, versionindex: {versionIndex}");
+                }
+
+                if (versionIndex < 0 || versionIndex >= publicFile.Versions.Count)
+                {
+                    return NotFound("Invalid version selected");
+                }
+
+                var selectedVersion = publicFile.Versions[versionIndex];
+
+                Console.WriteLine($"===========SELECTED VERSION {selectedVersion.Version}============");
+
+                var newFile = new FileModel
+                {
+                    Name = publicFile.AuthorOriginalFile.Name,
+                    Content = selectedVersion.Content.ToArray(),
+                    Type = publicFile.AuthorOriginalFile.Type,
+                    LastModified = selectedVersion.Version,
+                    ModifiedBy = publicFile.AuthorOriginalFile.ModifiedBy,
+                    IsShared = false
+
+                };
+
+                _context.FileModel.Add(newFile);
+
+                await _context.SaveChangesAsync();
+
+
+                var importRecord = new ImportFile
+                {
+                    UserId = (int)HttpContext.Session.GetInt32("UserId"),
+                    ImportDate = DateTime.UtcNow,
+                    ImportedFileId = newFile.Id,
+                    ImportedFile = newFile,
+                    OriginalPublicFileId = publicFile.AuthorOriginalFileId,
+                    OriginalPublicFile = publicFile.AuthorOriginalFile
+                };
+
+                _context.ImportFile.Add(importRecord);
+
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Files imported successfully";
+
+
             }
-
-            var importedFile = new FileModel
-            {
-                Name = publicFile.Name,
-                Content = publicFile.Content.ToArray(),
-                Type = publicFile.Type,
-                LastModified = publicFile.LastModified,
-                ProjectId = publicFile.ProjectId,
-                ModifiedBy = publicFile.ModifiedBy
-            };
-
-            _context.FileModel.Add(importedFile);
-            await _context.SaveChangesAsync(); 
-
-          
-            var importRecord = new ImportFile
-            {
-                UserId = (int)HttpContext.Session.GetInt32("UserId"), 
-                ImportDate = DateTime.UtcNow,
-                ImportedFileId = importedFile.Id, 
-                OriginalPublicFileId = publicFile.Id,
-                ImportedBy = username
-            };
-
-            _context.ImportFile.Add(importRecord);
-
-
-            await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Files imported successfully";
+            catch (Exception ex)
+            { }
+            
             return RedirectToAction("Index", "PublicFiles");
+            
         }
 
-/*
+        [HttpPost]
+        public async Task<IActionResult> Update(int fileId)
+        {
+            var importFile = await _context.ImportFile
+                .Include(f => f.ImportedFile)
+                .Include(f => f.OriginalPublicFile)
+                .ThenInclude(f => f.Share)
+                .ThenInclude(f => f.Versions)
+                .FirstOrDefaultAsync(f => f.Id == fileId);
+
+            if (importFile == null)
+            {
+                return NotFound("import File is null");
+            }
+            if (importFile.OriginalPublicFile == null)
+            {
+                return NotFound("OriginalPublicFile is null");
+            }
+            if (importFile.OriginalPublicFile.Share == null)
+            {
+                return NotFound("Share is null");
+            }
+            if (importFile.OriginalPublicFile.Share.Versions == null)
+            {
+                return NotFound("Versions is null");
+            }
+            var latestVersion = importFile.OriginalPublicFile.Share.Versions[importFile.OriginalPublicFile.Share.Versions.Count - 1];
+
+            //importFile.ImportDate = latestVersion.Version;
+            importFile.ImportDate = importFile.OriginalPublicFile.LastModified;
+            importFile.ImportedFile.Content = latestVersion.Content.ToArray();
+
+            Console.WriteLine("======================");
+            Console.WriteLine(importFile.ImportDate);
+            Console.WriteLine(importFile.OriginalPublicFile.LastModified);
+            Console.WriteLine("======================");
+
+            //var importFile = await _context.ImportFile.FirstOrDefaultAsync(f => f.Id == fileId);
+            //var test = importFile == null;
+            //Console.WriteLine($"================={test}==================");
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
         public async Task<IActionResult> ManageProjects(int fileId)
         {
             var file = await _context.ImportFile
-                .Include(f => f.Project)
                 .Include(f => f.ImportedFile)
+                .Include(f => f.ProjectLibraries)
                 .FirstOrDefaultAsync(f => f.Id == fileId);
 
             if (file == null)
@@ -229,29 +295,36 @@ namespace OnlineCompiler.Controllers
                 return NotFound();
             }
 
-            var allProjects = await _context.Project.ToListAsync();
+            if (file.ImportedFile == null)
+            {
+                return NotFound("Imported file reference is missing");
+            }
 
-            var viewModel = new FileProjectsViewModel
+            var availableProjects = await _context.Project
+                .Where(p => p.UserId == HttpContext.Session.GetInt32("UserId")) 
+                .ToListAsync();
+
+            var model = new ManageProjectsViewModel
             {
                 FileId = fileId,
                 FileName = file.ImportedFile.Name,
-                Projects = allProjects.Select(p => new ProjectSelection
+                Projects = availableProjects.Select(p => new ProjectSelectionViewModel
                 {
                     ProjectId = p.Id,
                     ProjectName = p.Name,
-                    IsSelected = p.ImportedFile.Any(imp => imp.ImportedFileId == file.ImportedFileId)
+                    IsSelected = file.ProjectLibraries.Any(u => u.ProjectId == p.Id && u.IsActive)
                 }).ToList()
             };
 
-            return View(viewModel);
+            return View(model);
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> ManageProjects(FileProjectsViewModel model)
+        public async Task<IActionResult> ManageProjects(ManageProjectsViewModel model)
         {
             var file = await _context.ImportFile
-                .Include(f => f.ImportedFile)
+                .Include(f => f.ProjectLibraries)
                 .FirstOrDefaultAsync(f => f.Id == model.FileId);
 
             if (file == null)
@@ -259,42 +332,30 @@ namespace OnlineCompiler.Controllers
                 return NotFound();
             }
 
-            var allProjects = await _context.Project
-                .Include(p => p.ImportedFile)
-                .ToListAsync();
-
-            foreach (var project in allProjects)
+            foreach (var project in model.Projects)
             {
-                var selection = model.Projects.FirstOrDefault(p => p.ProjectId == project.Id);
-                var isCurrentlyAssigned = project.ImportedFile.Any(imp => imp.ImportedFileId == file.ImportedFileId);
+                var existingUsage = file.ProjectLibraries
+                    .FirstOrDefault(u => u.ProjectId == project.ProjectId);
 
-                if (selection != null)
+                if (project.IsSelected && existingUsage == null)
                 {
-                    if (selection.IsSelected && !isCurrentlyAssigned)
+                    _context.Librarie.Add(new Library
                     {
-                        project.ImportedFile.Add(new ImportFile
-                        {
-                            ImportedFileId = file.ImportedFileId,
-                            ProjectId = project.Id,
-                            ImportDate = DateTime.Now,
-                            ImportedBy = User.Identity.Name
-                        });
-                    }
-                    else if (!selection.IsSelected && isCurrentlyAssigned)
-                    {
-                        var importFileToRemove = project.ImportedFiles
-                            .FirstOrDefault(imp => imp.ImportedFileId == file.ImportedFileId);
-                        if (importFileToRemove != null)
-                        {
-                            project.ImportedFiles.Remove(importFileToRemove);
-                        }
-                    }
+                        ProjectId = project.ProjectId,
+                        ImportedFileId = model.FileId,
+                        IsActive = true
+                    });
+                }
+                else if (!project.IsSelected && existingUsage != null)
+                {
+                    existingUsage.IsActive = false;
                 }
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }*/
+            TempData["Message"] = "Project assignments updated successfully";
+            return RedirectToAction("Index"); 
+        }
 
 
         private bool ImportFileExists(int id)

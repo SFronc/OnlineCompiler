@@ -45,18 +45,26 @@ namespace OnlineCompiler.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password)
         {
-            Console.WriteLine("================LOGGED IN=================");
-            var user = _context.User.FirstOrDefaultAsync(u => u.Username == username && u.PasswordHash == ComputeHash(password, MD5.Create()));
+            var user = await _context.User.FirstOrDefaultAsync(u => u.Username == username && u.PasswordHash == ComputeHash(password, MD5.Create()));
 
             if (user != null)
             {
                 HttpContext.Session.SetString("IsLoggedIn", "true");
                 HttpContext.Session.SetString("Username", username);
                 HttpContext.Session.SetInt32("UserId", user.Id);
+
+                if (user.Role == "Admin")
+                {
+                    HttpContext.Session.SetString("IsAdmin", "true");
+                }
+                else HttpContext.Session.SetString("IsAdmin", "false");
+
                 return RedirectToAction("Index");
             }
 
             ViewBag.ErrorMessage = "Invalid login or password";
+            
+
             return View("Login");
         }
 
@@ -66,7 +74,7 @@ namespace OnlineCompiler.Controllers
             if (_context.User.Any(u => u.Username == username))
             {
                 ViewBag.ErrorMessage = "Username already exists!";
-                return View("Login");
+                return View("Create");
             }
 
             var hashedPassword = ComputeHash(password, MD5.Create());
@@ -75,16 +83,17 @@ namespace OnlineCompiler.Controllers
             {
                 Username = username,
                 PasswordHash = hashedPassword,
-                Email = "placeholder"
+                Email = "placeholder",
+                Role = "User"
             };
 
             _context.User.Add(newUser);
             _context.SaveChanges();
 
-            HttpContext.Session.SetString("IsLoggedIn", "true");
-            HttpContext.Session.SetString("Username", username);
-            HttpContext.Session.SetInt32("UserId", newUser.Id);
-            return RedirectToAction("Index");
+            //HttpContext.Session.SetString("IsLoggedIn", "true");
+            //HttpContext.Session.SetString("Username", username);
+            //HttpContext.Session.SetInt32("UserId", newUser.Id);
+            return RedirectToAction("Create");
 
         }
 
@@ -92,6 +101,8 @@ namespace OnlineCompiler.Controllers
         {
             HttpContext.Session.Remove("IsLoggedIn");
             HttpContext.Session.Remove("Username");
+            HttpContext.Session.Remove("UserId");
+            HttpContext.Session.Clear();
             return RedirectToAction("Login");
         }
 
@@ -107,21 +118,10 @@ namespace OnlineCompiler.Controllers
         }
 
         // GET: User/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details()
         {
-            if (id == null || _context.User == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _context.User
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return View(user);
+            var users = _context.User.ToList();
+            return View(users); 
         }
 
         // GET: User/Create
@@ -239,12 +239,14 @@ namespace OnlineCompiler.Controllers
             return (_context.User?.Any(e => e.Id == id)).GetValueOrDefault();
         }
         
-        public static string ComputeHash(string input, HashAlgorithm hasher){
+        
+        public static string ComputeHash(string input, HashAlgorithm hasher)
+        {
             Encoding enc = Encoding.UTF8;
             var hashBuilder = new StringBuilder();
             byte[] result = hasher.ComputeHash(enc.GetBytes(input));
-            foreach(var b in result)
-            hashBuilder.Append(b.ToString("x2"));
+            foreach (var b in result)
+                hashBuilder.Append(b.ToString("x2"));
             return hashBuilder.ToString();
         }
     }

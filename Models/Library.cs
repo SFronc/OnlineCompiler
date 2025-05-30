@@ -7,12 +7,14 @@ namespace OnlineCompiler.Models
     {
         [Key]
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Code { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-        public ICollection<LibraryAccess> AccessibleBy { get; set; }
-        public ICollection<ProjectLibrary> UsedInProjects { get; set; }
+    
+        public int ProjectId { get; set; }
+        public Project Project { get; set; }
+    
+        public int ImportedFileId { get; set; }
+        public ImportFile ImportedFile { get; set; }
+    
+        public bool IsActive { get; set; } = true;
+        public DateTime AssignmentDate { get; set; } = DateTime.UtcNow;
     }
 }

@@ -171,12 +171,13 @@ namespace OnlineCompiler.Controllers
         [HttpPost]
     public async Task<IActionResult> Share(int fileId, string username)
     {
+            Console.WriteLine("==============SHARE METHOD===========");
         try
-    {
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        var file = await _context.FileModel.FindAsync(fileId);
-        if (file == null)
-        {
+            {
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                var file = await _context.FileModel.FindAsync(fileId);
+                if (file == null)
+                {
                     //return NotFound("File not found");
                     return Json(new
                     {
@@ -184,39 +185,48 @@ namespace OnlineCompiler.Controllers
                         message = "File not found",
                         status = 404
                     });
-        }
+                }
 
-                var isAlreadyShared = await _context.PublicFiles.AnyAsync(pf => pf.PublicFileId == fileId && pf.IsActive);
+                file.IsShared = true;
 
-        if (isAlreadyShared)
-        {
+                var isAlreadyActive = await _context.PublicFiles.AnyAsync(pf => pf.PublicFileId == fileId);
+                //var isAlreadyShared = file.IsShared;
+
+                if (isAlreadyActive)
+                {
+                    var pub = await _context.PublicFiles.Where(p => p.AuthorOriginalFileId == fileId).FirstOrDefaultAsync();
+                    pub.IsActive = true;
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
                     return Json(new
                     {
                         success = true,
                         message = "File is already shared",
                         status = 200
-                    });    
-        }
+                    });
+                }
 
-        file.IsShared = true;
+                file.IsShared = true;
 
-        var publicFile = new PublicFiles
-        {
-            PublicFileId = fileId,
-            AuthorOriginalFileId = fileId,
-            Author = username,
-            UpdateDate = DateTime.UtcNow,
-            AuthorOriginalFile = file,
-            IsActive = true
-        };
+                var publicFile = new PublicFiles
+                {
+                    PublicFileId = fileId,
+                    AuthorOriginalFileId = fileId,
+                    Author = username,
+                    UpdateDate = DateTime.UtcNow,
+                    AuthorOriginalFile = file,
+                    IsActive = true
+                };
 
-        file.Share = publicFile;
+                file.Share = publicFile;
 
 
 
-        _context.PublicFiles.Add(publicFile);
-        await _context.SaveChangesAsync();
-        await transaction.CommitAsync();
+                _context.PublicFiles.Add(publicFile);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
 
                 UpdateVersion(file.Id);
@@ -227,15 +237,16 @@ namespace OnlineCompiler.Controllers
                     message = "File shared successfully",
                     status = 200
                 });
-    }
-    catch (Exception ex)
-    {
-        return Json(new {
-            success = false,
-            message = $"Internal server error: {ex.Message}",
-            status = 500
-        });
-    }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"Internal server error: {ex.Message}",
+                    status = 500
+                });
+            }
     }
 
     [HttpPost]

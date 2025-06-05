@@ -24,5 +24,6 @@ namespace OnlineCompiler.Data
         public DbSet<OnlineCompiler.Models.UserFile> UserFile { get; set; } = default!;
         public DbSet<OnlineCompiler.Models.PublicFiles> PublicFiles { get; set; } = default!;
         public DbSet<OnlineCompiler.Models.ImportFile> ImportFile { get; set; } = default!;
+        public DbSet<OnlineCompiler.Models.ProjectCollaborator> ProjectCollaborators { get; set; } = default!;
     }
 }

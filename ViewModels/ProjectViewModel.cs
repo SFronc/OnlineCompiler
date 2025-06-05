@@ -7,5 +7,7 @@ namespace OnlineCompiler.ViewModels
     {
         public Project ProjectObj { get; set; }
         public string Username { get; set; }
+
+        public List<ProjectCollaborator> Collaborators { get; set; }
     }
 }

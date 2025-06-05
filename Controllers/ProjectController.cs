@@ -29,11 +29,26 @@ namespace OnlineCompiler.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var projects = await _context.Project
-                .Where(p => p.UserId == userId)
-                .ToListAsync();
+            var model = new ProjectIndexViewModel
+            {
+                OwnedProjects = await _context.Project
+                    .Where(p => p.UserId == userId)
+                    .OrderByDescending(p => p.LastModified)
+                    .ToListAsync(),
 
-            return View(projects);
+                CollaborationProjects = await _context.ProjectCollaborators
+                    .Include(c => c.Project)
+                    .ThenInclude(p => p.User)
+                    .Where(p => p.UserId == userId)
+                    .OrderByDescending(p => p.Project.LastModified)
+                    .ToListAsync()
+            };
+
+            //var projects = await _context.Project
+            //    .Where(p => p.UserId == userId)
+            //    .ToListAsync();
+
+            return View(model);
         }
 
         // GET: Project/Details/5
@@ -45,6 +60,8 @@ namespace OnlineCompiler.Controllers
             }
 
             var project = await _context.Project
+                .Include(p => p.Collaborators)
+                .ThenInclude(p => p.User)
                 .Include(p => p.Files)
                 .ThenInclude(f => f.Share)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -59,7 +76,21 @@ namespace OnlineCompiler.Controllers
                 ProjectObj = project,
                 Username = HttpContext.Session.GetString("Username")
             };
-            //return View(project);
+
+            ViewBag.UserRole = (int)CollaboratorRole.Admin;
+
+            var currentUserId = HttpContext.Session.GetInt32("UserId");
+            ViewBag.isReadOnly = true;
+
+            var collaborator = project.Collaborators.FirstOrDefault(c => c.UserId == currentUserId);
+
+            if (collaborator == null) {
+                return View(model);
+            }
+            else {
+                ViewBag.UserRole = (int)collaborator.Role;
+            }
+
             return View(model);
         }
 
@@ -80,7 +111,7 @@ namespace OnlineCompiler.Controllers
             if (ModelState.IsValid)
             {
                 var userId = HttpContext.Session.GetInt32("UserId");
-        
+
                 if (userId == null)
                 {
                     TempData["ErrorMessage"] = "You need to be logged in";
@@ -115,14 +146,14 @@ namespace OnlineCompiler.Controllers
                 .Where(x => x.Value.Errors.Count > 0)
                 .Select(x => new { x.Key, Errors = x.Value.Errors.Select(e => e.ErrorMessage) })
                 .ToList();
-        
+
                 Console.WriteLine("Validation errors:");
                 foreach (var error in errors)
                 {
                     Console.WriteLine($"{error.Key}: {string.Join(", ", error.Errors)}");
                 }
             }
-           // ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", project.UserId);
+            // ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", project.UserId);
             return View(model);
         }
 
@@ -212,14 +243,108 @@ namespace OnlineCompiler.Controllers
             {
                 _context.Project.Remove(project);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ProjectExists(int id)
         {
-          return (_context.Project?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Project?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddCollaborator(int projectId, string usernameOrEmail, string role)
+        {
+            //var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var currentUserId = HttpContext.Session.GetInt32("UserId");
+            var project = await _context.Project
+                .Include(p => p.User)
+                .Include(p => p.Collaborators)
+                .ThenInclude(c => c.User)
+                .FirstOrDefaultAsync(p => p.Id == projectId);
+
+            if (project == null)
+            {
+                return Json(new { success = false, message = "Project not found" });
+            }
+
+            if (project.UserId != currentUserId)
+            {
+                return Json(new { success = false, message = "Only project owner can add collaborators" });
+            }
+
+            var user = await _context.User
+                .FirstOrDefaultAsync(u => u.Username == usernameOrEmail);
+
+            if (user == null)
+            {
+                return Json(new { success = false, message = "User not found" });
+            }
+
+            if (project.Collaborators.Any(c => c.UserId == user.Id))
+            {
+                return Json(new { success = false, message = "User is already a collaborator" });
+            }
+
+
+            CollaboratorRole newRole = CollaboratorRole.ReadOnly;
+
+            switch (role)
+            {
+                case "Editor":
+                    newRole = CollaboratorRole.Collaborator;
+                    break;
+                case "Viewer":
+                    newRole = CollaboratorRole.ReadOnly;
+                    break;    
+            }
+
+            project.Collaborators.Add(new ProjectCollaborator
+            {
+                UserId = user.Id,
+                User = user,
+                Role = newRole,
+                JoinDate = DateTime.UtcNow,
+                Project = project,
+                ProjectId = project.Id
+            });
+
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Collaborator added successfully" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveCollaborator(int projectId, int userId)
+        {
+            //var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var currentUserId = HttpContext.Session.GetInt32("UserId");
+            var project = await _context.Project
+                .Include(p => p.User)
+                .Include(p => p.Collaborators)
+                .FirstOrDefaultAsync(p => p.Id == projectId);
+
+            if (project == null)
+            {
+                return Json(new { success = false, message = "Project not found" });
+            }
+
+            if (project.UserId != currentUserId)
+            {
+                return Json(new { success = false, message = "Only project owner can remove collaborators" });
+            }
+
+            var collaborator = project.Collaborators.FirstOrDefault(c => c.UserId == userId);
+            if (collaborator == null)
+            {
+                return Json(new { success = false, message = "Collaborator not found" });
+            }
+
+            _context.ProjectCollaborators.Remove(collaborator);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Collaborator removed successfully" });
         }
     }
 }

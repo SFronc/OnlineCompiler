@@ -1,129 +1,403 @@
 @model OnlineCompiler.ViewModels.ProjectViewModel
 @using Microsoft.AspNetCore.Http
+@using OnlineCompiler.Models
 
 @{
     ViewData["Title"] = "Details";
     var username = Model.Username;
+    var currentUserId = Context.Session.GetInt32("UserId");
+    var isOwner = Model.ProjectObj.UserId == currentUserId;
+    var isReadOnly = ViewBag.UserRole == (int)CollaboratorRole.ReadOnly;
+    var isCollaborator = ViewBag.UserRole == (int)CollaboratorRole.Collaborator;
+
+    Console.WriteLine($"Is Owner: {isOwner}");
+    Console.WriteLine($"Is ReadOnly: {isReadOnly}");
+    Console.WriteLine($"Is Collabolator: {isCollaborator}");
 }
 
-<h1>@Model.ProjectObj.Name</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - OnlineCompiler</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .remote-cursor {
+            position: absolute;
+            border-left: 2px solid;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .remote-cursor-label {
+            position: absolute;
+            top: -18px;
+            left: -2px;
+            padding: 2px 5px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 3px;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        .nav-tabs {
+            margin-bottom: 1rem;
+        }
+        .tab-content {
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 .25rem .25rem;
+        }
+        .readonly-overlay {
+            position: absolute;
+            top: 40px;
+            left: 250px;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(30, 30, 30, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .readonly-message {
+            color: #ff5555;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 20px;
+            background-color: rgba(40, 40, 40, 0.8);
+            border-radius: 5px;
+            border: 2px solid #ff5555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>@Model.ProjectObj.Name</h1>
 
-<div>
-    <h4>Project files</h4>
-    <hr />
+        <ul class="nav nav-tabs" id="projectTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="files-tab" data-bs-toggle="tab" data-bs-target="#files" type="button" role="tab">Files</button>
+            </li>
+            @if(isOwner)
+            {
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="collaborators-tab" data-bs-toggle="tab" data-bs-target="#collaborators" type="button" role="tab">Collaborators</button>
+                </li>
+            }
+        </ul>
 
-    @if (Model.ProjectObj.Files != null && Model.ProjectObj.Files.Any())
-    {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Files name</th>
-                    <th>Size</th>
-                    <th>Last Modified</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var file in Model.ProjectObj.Files)
-                {
-                    <tr>
-                        <td>@file.Name</td>
-                        <td>@(file.Content.Length) B</td>
-                        <td>@file.LastModified  @file.ModifiedBy</td>
-                        <td>
-                            <a asp-controller="FileModel" asp-action="Index" asp-route-id="@file.Id" class="btn btn-sm btn-outline-primary">Open</a>
-                            <a asp-controller="FileModel" asp-action="Delete" asp-route-id="@file.Id" class="btn btn-sm btn-outline-danger">Delete</a>
-                            
-                            @{
-                                var isShared = @file.IsShared;
-                            }
-                            <button class="btn btn-sm @(isShared ? "btn-secondary" : "btn-outline-success") share-btn" 
-                                    data-file-id="@file.Id" 
-                                    data-username="@username"
-                                    data-is-shared="@isShared.ToString().ToLower()">
-                                @(isShared ? "Shared" : "Share")
-                            </button>
+        <div class="tab-content" id="projectTabsContent">
+            <div class="tab-pane fade show active" id="files" role="tabpanel" aria-labelledby="files-tab">
+                <div class="mt-3">
+                    @if (Model.ProjectObj.Files != null && Model.ProjectObj.Files.Any())
+                    {
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Files name</th>
+                                    <th>Size</th>
+                                    <th>Last Modified</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var file in Model.ProjectObj.Files)
+                                {
+                                    <tr>
+                                        <td>@file.Name</td>
+                                        <td>@(file.Content.Length) B</td>
+                                        <td>@file.LastModified  @file.ModifiedBy</td>
+                                        <td>
+                                            <a asp-controller="FileModel" asp-action="Index" asp-route-id="@file.Id" class="btn btn-sm btn-outline-primary">Open</a>
+                                            
+                                            @if (!isReadOnly)
+                                            {
+                                                @if (isOwner || isCollaborator)
+                                                {
+                                                    <a asp-controller="FileModel" asp-action="Delete" asp-route-id="@file.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                                                }
+                                                
+                                                @if (isOwner)
+                                                {
+                                                    var isShared = @file.IsShared;
+                                                    <button class="btn btn-sm @(isShared ? "btn-secondary" : "btn-outline-success") share-btn" 
+                                                            data-file-id="@file.Id" 
+                                                            data-username="@username"
+                                                            data-is-shared="@isShared.ToString().ToLower()">
+                                                        @(isShared ? "Shared" : "Share")
+                                                    </button>
 
-                            @if(isShared && file.Share != null && file.LastModified != file.Share.UpdateDate){
-                            <form asp-controller="PublicFiles" 
-                                asp-action="Unshare" 
-                                method="post" 
-                                style="display:inline;">
-                                <input type="hidden" name="fileId" value="@file.Id" />
-                                <button type="submit" class="btn btn-sm btn-warning">
-                                    Update new version
-                                </button>
-                            </form>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
-    else
-    {
-        <p>No files</p>
-    }
-    <div class="mt-3">
-        <a asp-controller="FileModel" 
-           asp-action="Create" 
-           asp-route-projectId="@Model.ProjectObj.Id" 
-           class="btn btn-success">
-            <i class="bi bi-plus-circle"></i> Add new file
-        </a>
-    </div>
-</div>
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+                                                    @if(isShared && file.Share != null && file.LastModified != file.Share.UpdateDate)
+                                                    {
+                                                        <form asp-controller="PublicFiles" 
+                                                            asp-action="Unshare" 
+                                                            method="post" 
+                                                            style="display:inline;">
+                                                            <input type="hidden" name="fileId" value="@file.Id" />
+                                                            <button type="submit" class="btn btn-sm btn-warning">
+                                                                Update new version
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                }
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p>No files</p>
+                    }
+                    
+                    @if (isOwner || isCollaborator)
+                    {
+                        <div class="mt-3">
+                            <a asp-controller="FileModel" 
+                            asp-action="Create" 
+                            asp-route-projectId="@Model.ProjectObj.Id" 
+                            class="btn btn-success">
+                                <i class="bi bi-plus-circle"></i> Add new file
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
 
-@section Scripts {
-    <script>
-        $(document).ready(function() {
-            $('.share-btn').click(async function() {
-                const button = $(this);
-                const fileId = button.data('file-id');
-                const username = button.data('username');
-                const isShared = button.data('is-shared') === 'true';
-
-                button.prop('disabled', true);
-                const originalHtml = button.html();
-                button.html('<i class="fas fa-spinner fa-spin"></i>');
-
-                try {
-                    const url = isShared ? '/PublicFiles/Unshare' : '/PublicFiles/Share';
-                    const response = await $.post(url, { fileId, username });
-
-                    if (response.success) {
-                        if (!isShared) {
-                            button.removeClass('btn-outline-success').addClass('btn-secondary');
-                            button.html('<i class="fas fa-link"></i> Shared');
-                            button.data('is-shared', 'true');
-                            toastr.success(response.message);
-                        } else {
-                            button.removeClass('btn-secondary').addClass('btn-outline-success');
-                            button.html('<i class="fas fa-link-slash"></i> Share');
-                            button.data('is-shared', 'false');
-                            toastr.success(response.message);
-                        }
-                    } else {
-                        button.html(originalHtml);
+            <!-- Collaborators Tab - widoczna tylko dla właściciela -->
+            @if (isOwner)
+            {
+                <div class="tab-pane fade" id="collaborators" role="tabpanel" aria-labelledby="collaborators-tab">
+                    <div class="mt-3">
+                        <h5>Current Collaborators</h5>
                         
-                        if (response.status === 404) {
-                            toastr.warning(response.message);
+                        @if (Model.ProjectObj.Collaborators != null && Model.ProjectObj.Collaborators.Any())
+                        {
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Role</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var collaborator in Model.ProjectObj.Collaborators)
+                                    {
+                                        <tr>
+                                            <td>@collaborator.User.Username</td>
+                                            <td>@collaborator.Role</td>
+                                            <td>
+                                                @if (User.Identity.Name != collaborator.User.Username)
+                                                {
+                                                    <button class="btn btn-sm btn-outline-danger remove-collaborator-btn" 
+                                                            data-user-id="@collaborator.UserId"
+                                                            data-project-id="@Model.ProjectObj.Id">
+                                                        Remove
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Owner</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <p>No collaborators</p>
+                        }
+
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h5>Add New Collaborator</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="addCollaboratorForm">
+                                    <input type="hidden" name="projectId" value="@Model.ProjectObj.Id" />
+                                    <div class="form-group">
+                                        <label for="usernameOrEmail">Username or Email</label>
+                                        <input type="text" class="form-control" id="usernameOrEmail" name="usernameOrEmail" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="role">Role</label>
+                                        <select class="form-control" id="role" name="role">
+                                            <option value="@((int)CollaboratorRole.Collaborator)">Collaborator</option>
+                                            <option value="@((int)CollaboratorRole.ReadOnly)">Read Only</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-2">Add Collaborator</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="mt-3">
+            <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+        </div>
+    </div>
+
+    @if (isReadOnly)
+    {
+        <div class="readonly-overlay">
+            <div class="readonly-message">
+                READ ONLY MODE - You can only view files
+            </div>
+        </div>
+    }
+
+    @section Scripts {
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+        
+        <script>
+            $(document).ready(function() {
+                // Initialize Bootstrap tabs
+                var tabElms = document.querySelectorAll('button[data-bs-toggle="tab"]');
+                tabElms.forEach(function(tabEl) {
+                    tabEl.addEventListener('click', function (event) {
+                        event.preventDefault();
+                        var tab = new bootstrap.Tab(tabEl);
+                        tab.show();
+                    });
+                });
+
+                // Share button functionality
+                $('.share-btn').click(async function() {
+                    const button = $(this);
+                    const fileId = button.data('file-id');
+                    const username = button.data('username');
+                    const isShared = button.data('is-shared') === 'true';
+
+                    button.prop('disabled', true);
+                    const originalHtml = button.html();
+                    button.html('<i class="fas fa-spinner fa-spin"></i>');
+
+                    try {
+                        const url = isShared ? '/PublicFiles/Unshare' : '/PublicFiles/Share';
+                        const response = await $.post(url, { fileId, username });
+
+                        if (response.success) {
+                            if (!isShared) {
+                                button.removeClass('btn-outline-success').addClass('btn-secondary');
+                                button.html('<i class="fas fa-link"></i> Shared');
+                                button.data('is-shared', 'true');
+                                toastr.success(response.message);
+                            } else {
+                                button.removeClass('btn-secondary').addClass('btn-outline-success');
+                                button.html('<i class="fas fa-link-slash"></i> Share');
+                                button.data('is-shared', 'false');
+                                toastr.success(response.message);
+                            }
+                        } else {
+                            button.html(originalHtml);
+                            
+                            if (response.status === 404) {
+                                toastr.warning(response.message);
+                            } else {
+                                toastr.error(response.message);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        toastr.error('Network error occurred');
+                        button.html(originalHtml);
+                    } finally {
+                        button.prop('disabled', false);
+                    }
+                });
+
+                // Add collaborator form
+                $('#addCollaboratorForm').submit(async function(e) {
+                    e.preventDefault();
+                    
+                    const form = $(this);
+                    const submitBtn = form.find('button[type="submit"]');
+                    submitBtn.prop('disabled', true);
+                    submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Adding...');
+
+                    try {
+                        const response = await $.post('/Project/AddCollaborator', form.serialize());
+                        
+                        if (response.success) {
+                            toastr.success(response.message);
+                            form.trigger('reset');
+                            // Reload the collaborators list
+                            var tab = new bootstrap.Tab(document.querySelector('#collaborators-tab'));
+                            tab.show();
                         } else {
                             toastr.error(response.message);
                         }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        toastr.error('An error occurred while adding collaborator');
+                    } finally {
+                        submitBtn.prop('disabled', false);
+                        submitBtn.html('Add Collaborator');
                     }
-                } catch (error) {
-                    console.error('Error:', error);
-                    toastr.error('Network error occurred');
-                    button.html(originalHtml);
-                } finally {
-                    button.prop('disabled', false);
-                }
+                });
+
+                // Remove collaborator button
+                $(document).on('click', '.remove-collaborator-btn', function() {
+                    const button = $(this);
+                    const userId = button.data('user-id');
+                    const projectId = button.data('project-id');
+
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "This user will lose access to the project!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, remove!'
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            button.prop('disabled', true);
+                            button.html('<i class="fas fa-spinner fa-spin"></i>');
+
+                            try {
+                                const response = await $.post('/Project/RemoveCollaborator', {
+                                    userId: userId,
+                                    projectId: projectId
+                                });
+
+                                if (response.success) {
+                                    toastr.success(response.message);
+                                    // Reload the collaborators list
+                                    var tab = new bootstrap.Tab(document.querySelector('#collaborators-tab'));
+                                    tab.show();
+                                } else {
+                                    toastr.error(response.message);
+                                    button.prop('disabled', false);
+                                    button.html('Remove');
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                                toastr.error('An error occurred while removing collaborator');
+                                button.prop('disabled', false);
+                                button.html('Remove');
+                            }
+                        }
+                    });
+                });
             });
-        });
-    </script>
-}
+        </script>
+    }
+</body>
+</html>

@@ -20,8 +20,9 @@ namespace OnlineCompiler.Models
         public int? UserId { get; set; }
         public User? User { get; set; }
         public DateTime LastModified { get; set; } = DateTime.UtcNow;
-        //public User? ModifiedBy { get; set; }
 
+
+        public ICollection<ProjectCollaborator> Collaborators { get; set; } = new List<ProjectCollaborator>();
         public ICollection<FileModel> Files { get; set; } = new List<FileModel>();
         public ICollection<CompilationResult> CompilationResult { get; set; } = new List<CompilationResult>();
         //public ICollection<ProjectLibrary> UsedLibraries { get; set; } = new List<ProjectLibrary>();

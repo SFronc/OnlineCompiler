@@ -11,7 +11,7 @@ using OnlineCompiler.Data;
 namespace OnlineCompiler.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20250530060130_Initial")]
+    [Migration("20250604153324_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -236,6 +236,33 @@ namespace OnlineCompiler.Migrations
                     b.ToTable("Project");
                 });
 
+            modelBuilder.Entity("OnlineCompiler.Models.ProjectCollaborator", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("JoinDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ProjectCollaborators");
+                });
+
             modelBuilder.Entity("OnlineCompiler.Models.ProjectLibrary", b =>
                 {
                     b.Property<int>("Id")
@@ -294,8 +321,11 @@ namespace OnlineCompiler.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Email")
+                    b.Property<string>("ApiKey")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PasswordHash")
@@ -456,6 +486,25 @@ namespace OnlineCompiler.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("OnlineCompiler.Models.ProjectCollaborator", b =>
+                {
+                    b.HasOne("OnlineCompiler.Models.Project", "Project")
+                        .WithMany("Collaborators")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OnlineCompiler.Models.User", "User")
+                        .WithMany("Collaborations")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("OnlineCompiler.Models.ProjectLibrary", b =>
                 {
                     b.HasOne("OnlineCompiler.Models.Library", "Library")
@@ -509,6 +558,8 @@ namespace OnlineCompiler.Migrations
 
             modelBuilder.Entity("OnlineCompiler.Models.Project", b =>
                 {
+                    b.Navigation("Collaborators");
+
                     b.Navigation("CompilationResult");
 
                     b.Navigation("Files");
@@ -524,6 +575,8 @@ namespace OnlineCompiler.Migrations
             modelBuilder.Entity("OnlineCompiler.Models.User", b =>
                 {
                     b.Navigation("AccessibleLibraries");
+
+                    b.Navigation("Collaborations");
 
                     b.Navigation("Projects");
                 });

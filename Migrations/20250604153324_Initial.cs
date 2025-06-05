@@ -18,10 +18,11 @@ namespace OnlineCompiler.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Username = table.Column<string>(type: "TEXT", nullable: false),
-                    Email = table.Column<string>(type: "TEXT", nullable: false),
+                    Email = table.Column<string>(type: "TEXT", nullable: true),
                     PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
                     RegisterDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Role = table.Column<string>(type: "TEXT", nullable: false)
+                    Role = table.Column<string>(type: "TEXT", nullable: false),
+                    ApiKey = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -122,6 +123,34 @@ namespace OnlineCompiler.Migrations
                         column: x => x.ProjectId,
                         principalTable: "Project",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProjectCollaborators",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Role = table.Column<int>(type: "INTEGER", nullable: false),
+                    JoinDate = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProjectCollaborators", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProjectCollaborators_Project_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Project",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProjectCollaborators_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -339,6 +368,16 @@ namespace OnlineCompiler.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProjectCollaborators_ProjectId",
+                table: "ProjectCollaborators",
+                column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProjectCollaborators_UserId",
+                table: "ProjectCollaborators",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProjectLibrarie_LibraryId",
                 table: "ProjectLibrarie",
                 column: "LibraryId");
@@ -371,6 +410,9 @@ namespace OnlineCompiler.Migrations
 
             migrationBuilder.DropTable(
                 name: "LibraryAccesse");
+
+            migrationBuilder.DropTable(
+                name: "ProjectCollaborators");
 
             migrationBuilder.DropTable(
                 name: "ProjectLibrarie");

@@ -2,13 +2,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OnlineCompiler.Data;
+using Microsoft.OpenApi.Models;
 using OnlineCompiler.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<DataBaseContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DataBaseContext") ?? throw new InvalidOperationException("Connection string 'DataBaseContext' not found.")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSwaggerGen();
 
 builder.Services.AddDistributedMemoryCache();
 
@@ -72,6 +78,11 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 
 app.Use(async (ctx, next) =>
@@ -87,12 +98,48 @@ app.Use(async (ctx, next) =>
     }
 });
 
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path == "/")
+    {
+        await next();
+        return;
+    }
+
+    if (context.Request.Path.StartsWithSegments("/api"))
+    {
+        if (!context.Request.Headers.TryGetValue("X-API-Username", out var username) ||
+            !context.Request.Headers.TryGetValue("X-API-Key", out var apiKey))
+        {
+            context.Response.StatusCode = 401;
+            await context.Response.WriteAsync("Authentication required");
+            return;
+        }
+
+        var dbContext = context.RequestServices.GetRequiredService<DataBaseContext>();
+        var user = await dbContext.User.FirstOrDefaultAsync(u => u.Username == username && u.ApiKey == apiKey);
+
+        if (user == null)
+        {
+            context.Response.StatusCode = 403;
+            await context.Response.WriteAsync("Invalid credentials");
+            return;
+        }
+
+        context.Items["User"] = user;
+    }
+
+    await next();
+});
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.UseSession();
 

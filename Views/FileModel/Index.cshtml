@@ -1,12 +1,13 @@
 @{
-    ViewData["Title"] = "Edytor";
+    ViewData["Title"] = "Editor";
     Layout = null;
+    var isReadOnly = ViewBag.isReadOnly;
 }
 <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="utf-8" />
-    <title>Edytor kodu</title>
+    <title>Code Editor</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs/loader.min.js"></script>
     <style>
         html, body {
@@ -43,6 +44,9 @@
             display: flex;
             flex-direction: column;
             background: #1e1e1e;
+            @if(isReadOnly){
+                @:display: none !important;
+            }
         }
         #output {
             flex: 1;
@@ -115,12 +119,21 @@
             font-weight: bold;
             border-bottom: 1px solid #222;
         }
+        .readonly-message {
+            background: #333;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #F44336;
+        }
     </style>
 </head>
 <body>
     <div id="header">
+        @if(!isReadOnly){
         <button onclick="save()">Save</button>
         <button onclick="compile()">Compile</button>
+        }
         <button onclick="exit()">Exit</button>
     </div>
     <div id="container">
@@ -129,6 +142,7 @@
             <ul class="file-list" id="fileList"></ul>
         </div>
         <div id="editor"></div>
+        @if(!isReadOnly){
         <div id="right-panel">
             <div id="output">
                 <div class="panel-header">Compilation results</div>
@@ -139,11 +153,18 @@
                 <pre id="bytecodeResult">(no bytecode generated)</pre>
             </div>
         </div>
+        }
+        else{
+            <div class="readonly-message">
+                You are viewing this file in read-only mode
+            </div>
+        }
     </div>
 
     <script>
         let editor;
         let currentFileId = '@ViewBag.FileId';
+        const isReadOnly = @isReadOnly.ToString().ToLower();
 
         const fileContent = `@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(ViewBag.FileContent))`;
 
@@ -204,7 +225,6 @@
                     }
                 });
 
-                //highlightCurrentFile();
                 
                 history.pushState(null, '', `/Editor/Index/${fileId}`);
             } catch (error) {
@@ -222,6 +242,7 @@
                 defaultToken: '',
                 tokenizer: {
                     root: [
+                        [/###/, "hash"],
                         [/[a-zA-Z_][a-zA-Z0-9_]*(?=\s*\()/, 'function'],
                         [/\$[a-zA-Z_][a-zA-Z0-9_]*/, "variable.parameter"],
                         [/\b(JESLI|POKI)\b/, "keyword"],
@@ -244,6 +265,7 @@
                 base: 'vs-dark',
                 inherit: true,
                 rules: [
+                    { token: 'hash', foreground: 'ff0000', fontStyle: 'bold'},
                     { token: 'function', foreground: '4EC9B0', fontStyle: 'bold' },
                     { token: 'variable.parameter', foreground: '9b59b6', fontStyle: 'bold' },
                     { token: 'keyword', foreground: '569cd6' },
@@ -287,56 +309,58 @@
                 value: fileContent,
                 language: 'cz',
                 theme: 'customTheme',
-                automaticLayout: true
+                automaticLayout: true,
+                readOnly: isReadOnly
             });
         });
+            async function save() {
+                const content = editor.getValue();
+                const response = await fetch(`/FileModel/Save/${currentFileId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(content)
+                });
 
-        async function save() {
-            const content = editor.getValue();
-            const response = await fetch(`/FileModel/Save/${currentFileId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(content)
-            });
-
-            if (response.ok) {
-                alert("Zapisano!");
-                await loadProjectFiles();
-            } else {
-                alert("Błąd zapisu!");
+                if (response.ok) {
+                    alert("Zapisano!");
+                    await loadProjectFiles();
+                } else {
+                    alert("Błąd zapisu!");
+                }
             }
-        }
 
-         async function compile() {
-        const compileResult = document.getElementById("compileResult");
-        const bytecodeResult = document.getElementById("bytecodeResult");
-        const bytecodeHeader = document.querySelector("#bytecode .panel-header");
-        
-        compileResult.innerHTML = "Compiling...";
-        bytecodeResult.innerHTML = "Generating bytecode...";
-        bytecodeHeader.textContent = "Bytecode"; 
-        
-        try {
-            const response = await fetch(`/FileModel/Compile/${currentFileId}`, {
-                method: 'POST'
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                compileResult.innerHTML = `<span class="success-text">Success:</span>\n${data.output}`;
-                bytecodeResult.innerHTML = data.poczet || "(no bytecode generated)";
+            async function compile() {
+                const compileResult = document.getElementById("compileResult");
+                const bytecodeResult = document.getElementById("bytecodeResult");
+                const bytecodeHeader = document.querySelector("#bytecode .panel-header");
+                
+                compileResult.innerHTML = "Compiling...";
+                bytecodeResult.innerHTML = "Generating bytecode...";
                 bytecodeHeader.textContent = "Bytecode"; 
-            } else {
-                compileResult.innerHTML = `<span class="error-text">Error:</span>\n${data.errors}`;
-                bytecodeResult.innerHTML = data.errorFile || data.errors; 
-                bytecodeHeader.textContent = "Error details"; 
+                
+                try {
+                    const response = await fetch(`/FileModel/Compile/${currentFileId}`, {
+                        method: 'POST'
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        compileResult.innerHTML = `<span class="success-text">Success:</span>\n${data.output}`;
+                        bytecodeResult.innerHTML = data.poczet || "(no bytecode generated)";
+                        bytecodeHeader.textContent = "Bytecode"; 
+                    } else {
+                        compileResult.innerHTML = `<span class="success-text"></span>\n${data.output}`;
+                        compileResult.innerHTML += `<span class="error-text">Error:</span>${data.errors}`;
+                        bytecodeResult.innerHTML = data.errorFile || data.errors; 
+                        bytecodeHeader.textContent = "Error details"; 
+                    }
+                } catch (error) {
+                    compileResult.innerHTML = `<span class="error-text">Fatal Error:</span>${error.message}`;
+                    bytecodeResult.innerHTML = "(bytecode generation failed)";
+                    bytecodeHeader.textContent = "Error details"; 
+                }
             }
-        } catch (error) {
-            compileResult.innerHTML = `<span class="error-text">Fatal Error:</span>\n${error.message}`;
-            bytecodeResult.innerHTML = "(bytecode generation failed)";
-            bytecodeHeader.textContent = "Error details"; 
-        }
-    }
+        
 
         function exit() {
             window.location.href = '/Project/Index';

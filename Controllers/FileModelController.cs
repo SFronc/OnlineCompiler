@@ -36,6 +36,28 @@ namespace OnlineCompiler.Controllers
             ViewBag.FileName = file.Name;
             ViewBag.FileContent = Encoding.UTF8.GetString(file.Content);
 
+            var currentUserId = HttpContext.Session.GetInt32("UserId");
+            var project = await _context.Project
+                .Include(p => p.User)
+                .Include(p => p.Collaborators)
+                .FirstOrDefaultAsync(p => p.Id == file.ProjectId);
+
+            ViewBag.isReadOnly = false;
+
+            if (project == null || project.UserId == HttpContext.Session.GetInt32("UserId"))
+            {
+                return View();
+            }
+
+            var collaborator = project.Collaborators.FirstOrDefault(c => c.UserId == currentUserId);
+
+            if (collaborator == null) {
+                return View();
+            }
+            else {
+                ViewBag.isReadOnly = collaborator.Role == CollaboratorRole.ReadOnly;
+            }
+
             return View();
             //return View(await dataBaseContext.ToListAsync());
         }

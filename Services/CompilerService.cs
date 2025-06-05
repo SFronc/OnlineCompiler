@@ -97,17 +97,24 @@ namespace OnlineCompiler.Services
                     {
                         if (args.Data != null)
                         {
-                            output.AppendLine(args.Data);
-                            Console.WriteLine(args.Data);
+                            if (args.Data != "")
+                            {     
+                                output.AppendLine(args.Data);
+                            }
                         }
-                        else
-                            outputCompletion.SetResult(true);
+                            else
+                                outputCompletion.SetResult(true);
                     };
 
                     process.ErrorDataReceived += (sender, args) =>
                     {
                         if (args.Data != null)
-                            errors.AppendLine(args.Data);
+                        {
+                            if (args.Data != "")
+                            {
+                                errors.AppendLine(args.Data);
+                            }
+                        }
                         else
                             errorCompletion.SetResult(true);
                     };
@@ -117,7 +124,8 @@ namespace OnlineCompiler.Services
                     process.BeginErrorReadLine();
 
                     await Task.Delay(100);
-                    await process.StandardInput.WriteLineAsync();
+                    //await process.StandardInput.WriteLineAsync();
+                    await process.StandardInput.WriteAsync("\x1A");
 
                     bool exited = await Task.Run(() => process.WaitForExit(10000));
 
@@ -160,6 +168,10 @@ namespace OnlineCompiler.Services
                         }
                         catch{ }
                     }
+
+                    //Console.WriteLine("=============");
+                    //Console.Write(output);
+                    //Console.WriteLine("==============");
 
                     return new CompilationResult
                     {
@@ -222,44 +234,54 @@ namespace OnlineCompiler.Services
 
     public static class AnsiConverter
 {
-    public static string ToHtml(string ansiText)
-    {
-        string output = ansiText;
-
-        output = Regex.Replace(output, @"\x1B\[0?m", "</span>");
-
-        output = Regex.Replace(output, @"\x1B\[(\d+;)?(\d+)m", match =>
+        public static string ToHtml(string ansiText)
         {
-            var codes = match.Value
-                .Replace("\x1B[", "")
-                .Replace("m", "")
-                .Split(';');
+            if (string.IsNullOrEmpty(ansiText))
+                return string.Empty;
+            
+            ansiText = ansiText.TrimEnd('\n', '\r');
 
-            string style = "";
+            string output = ansiText
+                .Replace("\r\n", "\n") 
+                .Replace("\r", "\n")
+                .TrimEnd('\n');
+    
 
-            foreach (var code in codes)
+            output = Regex.Replace(output, @"\x1B\[0?m", "</span>");
+
+            output = Regex.Replace(output, @"\x1B\[(\d+;)?(\d+)m", match =>
             {
-                switch (code)
+                var codes = match.Value
+                    .Replace("\x1B[", "")
+                    .Replace("m", "")
+                    .Split(';');
+
+                string style = "";
+
+                foreach (var code in codes)
                 {
-                    case "1":
-                        style += "font-weight:bold;";
-                        break;
-                    case "30": style += "color:black;"; break;
-                    case "31": style += "color:red;"; break;
-                    case "32": style += "color:green;"; break;
-                    case "33": style += "color:yellow;"; break;
-                    case "34": style += "color:blue;"; break;
-                    case "35": style += "color:magenta;"; break;
-                    case "36": style += "color:cyan;"; break;
-                    case "37": style += "color:white;"; break;
-                    case "90": style += "color:gray;"; break;
+                    switch (code)
+                    {
+                        case "1":
+                            style += "font-weight:bold;";
+                            break;
+                        case "30": style += "color:black;"; break;
+                        case "31": style += "color:red;"; break;
+                        case "32": style += "color:green;"; break;
+                        case "33": style += "color:yellow;"; break;
+                        case "34": style += "color:blue;"; break;
+                        case "35": style += "color:magenta;"; break;
+                        case "36": style += "color:cyan;"; break;
+                        case "37": style += "color:white;"; break;
+                        case "90": style += "color:gray;"; break;
+                    }
                 }
-            }
 
-            return $"<span style=\"{style}\">";
-        });
-
-        return "<pre style=\"white-space:pre-wrap\">" + output + "</pre>";
+                return $"<span style=\"{style}\">";
+            });
+            output = output.Replace("\n", "<br>");
+            return "<pre>" + output + "</pre>";
+        //return "<pre style=\"white-space:pre-wrap\">" + output + "</pre>";
     }
 }
 

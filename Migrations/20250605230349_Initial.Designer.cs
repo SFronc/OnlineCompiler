@@ -11,7 +11,7 @@ using OnlineCompiler.Data;
 namespace OnlineCompiler.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20250604153324_Initial")]
+    [Migration("20250605230349_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

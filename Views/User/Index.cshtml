@@ -4,6 +4,7 @@
 
 <h2>Welcome, @ViewBag.Username!</h2>
 <p>You are logged in.</p>
+<p>Your REST Api token: <strong>@ViewBag.ApiKey</strong></p>
 
 <form asp-action="Logout" method="post">
     <button type="submit" class="btn btn-primary">Log out</button>

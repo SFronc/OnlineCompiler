@@ -14,7 +14,7 @@ namespace OnlineCompiler.Models
 
         public ICollection<Project>? Projects { get; set; }
         public ICollection<LibraryAccess>? AccessibleLibraries { get; set; }
-        public virtual ICollection<ProjectCollaborator> Collaborations { get; set; }
+        public virtual ICollection<ProjectCollaborator>? Collaborations { get; set; }
 
         public string ApiKey { get; set; } = Guid.NewGuid().ToString();
     }

@@ -113,7 +113,16 @@ namespace OnlineCompiler.Controllers
                 return RedirectToAction(nameof(Login));
             }
 
-            ViewBag.Username = HttpContext.Session.GetString("Username");
+            var username = HttpContext.Session.GetString("Username");
+            ViewBag.Username = username;
+
+            var user = await _context.User.FirstOrDefaultAsync(u => u.Username == username);
+
+            if (user != null)
+            {
+                ViewBag.ApiKey = user.ApiKey;
+            }
+
             return View();
         }
 

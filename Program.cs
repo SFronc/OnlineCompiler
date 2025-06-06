@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using OnlineCompiler.Data;
 using Microsoft.OpenApi.Models;
 using OnlineCompiler.Services;
+using OnlineCompiler.ApiControllers;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<DataBaseContext>(options =>
@@ -12,8 +13,8 @@ builder.Services.AddDbContext<DataBaseContext>(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDistributedMemoryCache();
@@ -67,14 +68,13 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+//======================================
+app.UseMiddleware<ApiKeyMiddleware>();
+//=====================================
 
-
-
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -98,7 +98,7 @@ app.Use(async (ctx, next) =>
     }
 });
 
-app.Use(async (context, next) =>
+/*app.Use(async (context, next) =>
 {
     if (context.Request.Path == "/")
     {
@@ -130,7 +130,7 @@ app.Use(async (context, next) =>
     }
 
     await next();
-});
+});*/
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

@@ -292,10 +292,10 @@ namespace OnlineCompiler.Controllers
 
             switch (role)
             {
-                case "Editor":
+                case "1":
                     newRole = CollaboratorRole.Collaborator;
                     break;
-                case "Viewer":
+                case "2":
                     newRole = CollaboratorRole.ReadOnly;
                     break;    
             }

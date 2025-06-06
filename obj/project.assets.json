@@ -11349,11 +11349,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\User\\Documents\\programyCSharp\\Lab10\\OnlinePersolanizedCompilerApp\\OnlineCompiler\\OnlineCompiler.csproj",
+      "projectUniqueName": "C:\\Users\\User\\Documents\\programyCSharp\\Lab10\\OnlinePersolanizedCompilerApp\\FinalCompiler\\OnlineCompiler\\OnlineCompiler.csproj",
       "projectName": "OnlineCompiler",
-      "projectPath": "C:\\Users\\User\\Documents\\programyCSharp\\Lab10\\OnlinePersolanizedCompilerApp\\OnlineCompiler\\OnlineCompiler.csproj",
+      "projectPath": "C:\\Users\\User\\Documents\\programyCSharp\\Lab10\\OnlinePersolanizedCompilerApp\\FinalCompiler\\OnlineCompiler\\OnlineCompiler.csproj",
       "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\User\\Documents\\programyCSharp\\Lab10\\OnlinePersolanizedCompilerApp\\OnlineCompiler\\obj\\",
+      "outputPath": "C:\\Users\\User\\Documents\\programyCSharp\\Lab10\\OnlinePersolanizedCompilerApp\\FinalCompiler\\OnlineCompiler\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

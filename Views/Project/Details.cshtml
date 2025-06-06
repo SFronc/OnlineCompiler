@@ -134,7 +134,7 @@
                                                     @if(isShared && file.Share != null && file.LastModified != file.Share.UpdateDate)
                                                     {
                                                         <form asp-controller="PublicFiles" 
-                                                            asp-action="Unshare" 
+                                                            asp-action="UpdateVersion" 
                                                             method="post" 
                                                             style="display:inline;">
                                                             <input type="hidden" name="fileId" value="@file.Id" />
@@ -249,14 +249,6 @@
         </div>
     </div>
 
-    @if (isReadOnly)
-    {
-        <div class="readonly-overlay">
-            <div class="readonly-message">
-                READ ONLY MODE - You can only view files
-            </div>
-        </div>
-    }
 
     @section Scripts {
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -267,7 +259,6 @@
         
         <script>
             $(document).ready(function() {
-                // Initialize Bootstrap tabs
                 var tabElms = document.querySelectorAll('button[data-bs-toggle="tab"]');
                 tabElms.forEach(function(tabEl) {
                     tabEl.addEventListener('click', function (event) {
@@ -277,7 +268,6 @@
                     });
                 });
 
-                // Share button functionality
                 $('.share-btn').click(async function() {
                     const button = $(this);
                     const fileId = button.data('file-id');

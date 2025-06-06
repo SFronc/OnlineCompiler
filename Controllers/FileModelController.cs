@@ -282,23 +282,56 @@ namespace OnlineCompiler.Controllers
             {
                 return Problem("Entity set 'DataBaseContext.FileModel'  is null.");
             }
-            var fileModel = await _context.FileModel.FindAsync(id);
-            if (fileModel != null)
+
+            var file = await _context.FileModel
+                .Include(f => f.Project)
+                .Include(f => f.Share)
+                .FirstOrDefaultAsync(f => f.Id == id);
+
+            //var importFiles = await _context.ImportFile
+            //    .Where(f => f.ImportedFileId == id || f.OriginalPublicFileId == id)
+            //    .ToListAsync();
+
+            var importFiles = await _context.ImportFile.ToListAsync();
+
+            foreach (var importedFile in importFiles)
             {
-                var shared = await _context.PublicFiles
-                    .Where(f => f.PublicFileId == id)
-                    .FirstOrDefaultAsync();
-
-                if (shared != null)
+                if (importedFile.OriginalPublicFileId == file.Id)
                 {
-                    _context.PublicFiles.Remove(shared);
+                    importedFile.ImportedFileId = 0; 
+                    importedFile.ImportedFile = null;
                 }
+                /*
+                if (importedFile.ImportedFileId == id)
+                {
+                    importedFile.ImportedFileId = 0;
+                    importedFile.ImportedFile = null;
+                }
+                if (importedFile.OriginalPublicFileId == id)
+                {
+                    importedFile.OriginalPublicFileId = 0;
+                    importedFile.OriginalPublicFile = null;
+                }*/
 
-                _context.FileModel.Remove(fileModel);
-                
             }
+
+            //await _context.SaveChangesAsync();
+
+
+            if (file == null)
+            {
+                return NotFound();
+            }
+
+           if (file.Share != null)
+            {
+                _context.PublicFiles.Remove(file.Share);
+            }
+
+            _context.FileModel.Remove(file);
             
             await _context.SaveChangesAsync();
+
             return RedirectToAction("Details", "Project", new { id = HttpContext.Session.GetInt32("CurrProject") });
         }
 

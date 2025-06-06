@@ -179,7 +179,7 @@ namespace OnlineCompiler.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Code,isPublic,UserId,LastModified")] Project project)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description")] Project project)
         {
             if (id != project.Id)
             {
@@ -189,21 +189,32 @@ namespace OnlineCompiler.Controllers
             if (ModelState.IsValid)
             {
                 try
-                {
-                    _context.Update(project);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProjectExists(project.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+        {
+            var existingProject = await _context.Project.FindAsync(id);
+            if (existingProject == null)
+            {
+                return NotFound();
+            }
+
+            // Tylko zaktualizuj odpowiednie właściwości
+            existingProject.Name = project.Name;
+            existingProject.Description = project.Description;
+            existingProject.LastModified = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ProjectExists(project.Id))
+            {
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+        return RedirectToAction(nameof(Index));
                 return RedirectToAction(nameof(Index));
             }
             ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", project.UserId);

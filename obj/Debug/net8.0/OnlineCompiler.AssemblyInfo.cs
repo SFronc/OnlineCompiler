@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OnlineCompiler")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+57e44a2ddfd42a69134074ec8d29bd24ada6bf23")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+211c35c406c63f6d7b03d58a7ddbab6785fb32d1")]
 [assembly: System.Reflection.AssemblyProductAttribute("OnlineCompiler")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OnlineCompiler")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

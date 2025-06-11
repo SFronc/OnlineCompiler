@@ -1,0 +1,5 @@
+jakasTamFunkcja = obszar(cos)
+{
+    $wypisz_prs "Wywolano jakas tam funkcje"
+    $wypisz_prs cos
+};

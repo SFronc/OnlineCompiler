@@ -20,6 +20,7 @@ namespace OnlineCompiler.ApiControllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PublicFiles>>> GetPublicFiles()
         {
+
             var curUser =  HttpContext.Items["User"] as User;
 
             if (_context.PublicFiles == null || curUser == null)

@@ -1,0 +1,9 @@
+zawartosc = obszar(nazwa)
+{
+    $pobierz_zawartosc_z_peku_pek zwrot nazwa
+};
+
+wpisz = obszar(nazwa, zaw)
+{
+    $wpisz_zawartosc_w_pek_pek zwrot nazwa zaw
+};

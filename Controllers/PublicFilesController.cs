@@ -22,6 +22,11 @@ namespace OnlineCompiler.Controllers
         // GET: PublicFiles
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("IsLoggedIn") != "true")
+            {
+                return RedirectToAction("Login", "User");
+            }
+
             var userId = HttpContext.Session.GetInt32("UserId");
 
             var publicFiles = await _context.PublicFiles

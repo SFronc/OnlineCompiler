@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.Web.CodeGeneration;
+using OnlineCompiler.Data;
 using OnlineCompiler.Models;
 using CompilationResult = OnlineCompiler.Models.CompilationResult;
 
@@ -10,7 +12,7 @@ namespace OnlineCompiler.Services
 {
     public interface ICompilerService
     {
-        Task<CompilationResult> CompileAsync(string code, string language, List<FileModel> projFiles, List<FileModel> libFiles);
+        Task<CompilationResult> CompileAsync(string code, string language, List<FileModel> projFiles, List<FileModel> libFiles, DataBaseContext _context);
     }
 
     public class CompilerService : ICompilerService
@@ -47,10 +49,12 @@ namespace OnlineCompiler.Services
                 throw new DirectoryNotFoundException($"Lib directory not found at: {_libPath}");
         }
 
-        public async Task<CompilationResult> CompileAsync(string code, string language, List<FileModel> projFiles, List<FileModel> libFiles)
+        public async Task<CompilationResult> CompileAsync(string code, string language, List<FileModel> projFiles, List<FileModel> libFiles, DataBaseContext _context)
         {
             var tempDir = Path.Combine(Path.GetTempPath(), $"compile_{Guid.NewGuid()}");
             Directory.CreateDirectory(tempDir);
+
+            var projFileMappings = new Dictionary<string, FileModel>();
 
             var inputFile = Path.Combine(tempDir, "input.cz");
             var poczetFile = Path.Combine(tempDir, "poczet.txt");
@@ -62,13 +66,26 @@ namespace OnlineCompiler.Services
 
                 foreach (var item in projFiles)
                 {
-                    await File.WriteAllBytesAsync(Path.Combine(tempDir, item.Name + ".cz"), item.Content);
+                    var ext = item.Type;
+                    if (ext.IsNullOrEmpty())
+                    {
+                        ext = "cz";
+                    }
+                    //await File.WriteAllBytesAsync(Path.Combine(tempDir, item.Name + "." + ext), item.Content);
+                    var filePath = Path.Combine(tempDir, $"{item.Name}.{ext}");
+                    await File.WriteAllBytesAsync(filePath, item.Content);
+                    projFileMappings[filePath] = item;
                 }
 
                 foreach (var item in libFiles)
                 {
+                    var ext = item.Type;
+                    if (ext.IsNullOrEmpty())
+                    {
+                        ext = "cz";
+                    }
                     Console.WriteLine($"==============:{item.Name}:==================");
-                    await File.WriteAllBytesAsync(Path.Combine(tempDir, item.Name + ".cz"), item.Content);
+                    await File.WriteAllBytesAsync(Path.Combine(tempDir, item.Name + "." + ext), item.Content);
                 }
 
                 var processInfo = new ProcessStartInfo
@@ -98,12 +115,12 @@ namespace OnlineCompiler.Services
                         if (args.Data != null)
                         {
                             if (args.Data != "")
-                            {     
+                            {
                                 output.AppendLine(args.Data);
                             }
                         }
-                            else
-                                outputCompletion.SetResult(true);
+                        else
+                            outputCompletion.SetResult(true);
                     };
 
                     process.ErrorDataReceived += (sender, args) =>
@@ -166,12 +183,16 @@ namespace OnlineCompiler.Services
                         {
                             errorContent = await File.ReadAllTextAsync(errorFile, Encoding.UTF8);
                         }
-                        catch{ }
+                        catch { }
                     }
 
                     //Console.WriteLine("=============");
                     //Console.Write(output);
                     //Console.WriteLine("==============");
+
+                    Console.WriteLine("==========Program Exit code==========");
+                    Console.WriteLine(process.ExitCode);
+                    Console.WriteLine("==============");
 
                     return new CompilationResult
                     {
@@ -194,7 +215,7 @@ namespace OnlineCompiler.Services
             }
             finally
             {
-                CleanupTempDirectory(tempDir);
+                CleanupTempDirectoryAsync(tempDir, projFileMappings, _context);
             }
         }
 
@@ -211,12 +232,21 @@ namespace OnlineCompiler.Services
             return Path.Combine(_env.ContentRootPath, relativePath);
         }
 
-        private void CleanupTempDirectory(string tempDir)
+        private async Task CleanupTempDirectoryAsync(string tempDir, Dictionary<string, FileModel> projFileMappings, DataBaseContext _context)
         {
             try
             {
                 if (Directory.Exists(tempDir))
                 {
+                    UpdateFileModelsContentAsync(projFileMappings);
+
+                    foreach (var fileModel in projFileMappings.Values)
+                    {
+                        await _context.SaveChangesAsync();
+                    }
+        
+
+                    //Console.WriteLine(tempDir);
                     Directory.Delete(tempDir, recursive: true);
                 }
             }
@@ -225,7 +255,28 @@ namespace OnlineCompiler.Services
                 _logger.LogWarning(ex, $"Could not delete temp directory: {tempDir}");
             }
         }
+
+        private void UpdateFileModelsContentAsync(Dictionary<string, FileModel> fileMappings)
+        {
+            foreach (var mapping in fileMappings)
+            {
+                try
+                {
+                    if (File.Exists(mapping.Key))
+                    {
+                        var newContent = File.ReadAllBytes(mapping.Key);
+                        mapping.Value.Content = newContent;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, $"Failed to update content for file {mapping.Key}");
+                }
+            }
+        }
     }
+
+    
 
     public class ConfigurationException : Exception
     {
@@ -239,12 +290,13 @@ namespace OnlineCompiler.Services
             if (string.IsNullOrEmpty(ansiText))
                 return string.Empty;
             
-            ansiText = ansiText.TrimEnd('\n', '\r');
+             ansiText = ansiText.TrimEnd('\n', '\r');
 
-            string output = ansiText
-                .Replace("\r\n", "\n") 
-                .Replace("\r", "\n")
-                .TrimEnd('\n');
+             string output = ansiText
+                  .Replace("\r\n", "\n") 
+            //      .Replace("\r", "\n")
+                  .TrimEnd('\n');
+            //string output = ansiText;
     
 
             output = Regex.Replace(output, @"\x1B\[0?m", "</span>");

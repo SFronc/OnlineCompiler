@@ -99,10 +99,11 @@ namespace OnlineCompiler.Controllers
                                             .Distinct()
                                             .ToListAsync();
 
-            var result = await _compiler.CompileAsync(code, "cz", projFiles, libFiles);
+            var result = await _compiler.CompileAsync(code, "cz", projFiles, libFiles,_context);
 
             Console.WriteLine("===========================");
              Console.WriteLine(result.Poczet);
+            Console.WriteLine(result.Success);
              Console.WriteLine("===========================");
 
             return Json(new

@@ -1,2 +1,19 @@
-nadaj_dz 3 1 2
-wypisz_prs 1
+nadaj_dz 17 1 2
+nadaj_dz 17 3 4
+nadaj_dz 17 5 6
+wywolaj_dz 24 18 3 8
+nadaj_dz 17 7 18
+wypisz_prs 7
+wywolaj_dz 32 18 5 8 10
+nadaj_dz 17 9 18
+jesli_klc 9
+wypisz_prs 11
+nie_dz 17 9
+jesli_klc 17
+wypisz_prs 12
+wypisz_prs 13
+wywolaj_dz 24 18 3 8
+nadaj_dz 17 7 18
+wypisz_prs 14
+wywolaj_dz 24 17 15 7
+wypisz_prs 16

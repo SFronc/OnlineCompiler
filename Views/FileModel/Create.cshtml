@@ -15,8 +15,9 @@
         <div class="input-group">
             <input asp-for="FileName" class="form-control" placeholder="np. moj_plik" />
             <div class="input-group-append">
-                <span class="input-group-text">@Model.Extension</span>
+                <span class="input-group-text">.</span>
             </div>
+            <input asp-for="Extension" class="form-control" placeholder="np. cz" value="@Model.Extension" />
         </div>
         <span asp-validation-for="FileName" class="text-danger"></span>
     </div>
@@ -27,15 +28,21 @@
     </div>
 </form>
 
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     
     <script>
         document.querySelector('form').addEventListener('submit', function(e) {
             const fileNameInput = document.getElementById('FileName');
-            if (!fileNameInput.value.endsWith('@Model.Extension')) {
-                fileNameInput.value += '@Model.Extension';
+            const extensionInput = document.getElementById('Extension');
+            
+            // Usuń ewentualne istniejące rozszerzenie
+            const currentExtension = extensionInput.value.trim();
+            if (currentExtension) {
+                const dotIndex = fileNameInput.value.lastIndexOf('.');
+                if (dotIndex !== -1) {
+                    fileNameInput.value = fileNameInput.value.substring(0, dotIndex);
+                }
             }
         });
     </script>
